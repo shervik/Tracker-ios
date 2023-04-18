@@ -112,33 +112,25 @@ final class TrackersViewController: UIViewController {
     private func changeVisible() {
         let currentWeekDay = Calendar.current.component(.weekday, from: currentDate)
         
-        self.visibleCategories = categories.map { category in
+        self.visibleCategories = categories.compactMap { category in
             let filteredTrackers = category.trackersList.filter { tracker in
                 guard let weekDay = WeekDay(rawValue: currentWeekDay)
                 else { preconditionFailure("Weekday must be in range of 1...7") }
-                
-                let schedule = tracker.schedule.contains(weekDay)
-                let completedTrackers = completedTrackers.contains(.init(id: tracker.id, date: currentDate))
-                
-                return schedule && !completedTrackers
+                return tracker.schedule.contains(weekDay)
             }
             return TrackerCategory(header: category.header, trackersList: filteredTrackers)
         }
-
+        
         updateVisability()
         trackerCollection.reloadData()
     }
     
     private func updateVisability() {
-        if visibleCategories.isEmpty || visibleCategories[0].trackersList.isEmpty {
-            errorImage.isHidden = false
-            errorTitle.isHidden = false
-            trackerCollection.isHidden = true
-        } else {
-            errorImage.isHidden = true
-            errorTitle.isHidden = true
-            trackerCollection.isHidden = false
-        }
+        let isCollectionVisible = !visibleCategories.isEmpty && !visibleCategories[0].trackersList.isEmpty
+        
+        errorImage.isHidden = isCollectionVisible
+        errorTitle.isHidden = isCollectionVisible
+        trackerCollection.isHidden = !isCollectionVisible
     }
     
     @objc func datePickerChanged(_ datePicker: UIDatePicker) {
@@ -212,7 +204,7 @@ extension TrackersViewController: UICollectionViewDataSource {
                                                                          withReuseIdentifier: TrackerListHeader.identifier,
                                                                          for: indexPath) as? TrackerListHeader
         else { return UICollectionReusableView() }
-                
+        
         if !visibleCategories.isEmpty {
             view.titleLabel.text = "\(visibleCategories[indexPath.section].header)"
         }
@@ -232,13 +224,18 @@ extension TrackersViewController: UICollectionViewDataSource {
         else { return UICollectionViewCell() }
         
         cell.delegate = self
-        
-        let tracker = categories[indexPath.section].trackersList[indexPath.row]
+        cell.currentDate = self.currentDate
+
+        let tracker = visibleCategories[indexPath.section].trackersList[indexPath.row]
         
         cell.trackerTitle.text = tracker.name
         cell.emojiLabel.text = tracker.emoji
         cell.cardView.backgroundColor = tracker.color
         cell.addButton.backgroundColor = tracker.color
+        
+        if !completedTrackers.contains(TrackerRecord(id: tracker.id, date: currentDate)) {
+            cell.resetStateButton()
+        }
         
         cell.prepareForReuse()
         return cell
@@ -271,17 +268,17 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: TrackerCellDelegate {
     
     func didDoneTracker(_ cell: TrackerCell) {
-        if currentDate <= Date() {
-            cell.countDays += 1
-            cell.dayLabel.text = "\(cell.countDays) день"
-            guard let indexPath = trackerCollection.indexPath(for: cell) else { return }
-            
-            let trackers = visibleCategories[indexPath.section].trackersList[indexPath.row]
-            var todayCompletedTracker = completedTrackers
+        guard let indexPath = trackerCollection.indexPath(for: cell) else { return }
+        
+        let trackers = visibleCategories[indexPath.section].trackersList[indexPath.row]
+        var todayCompletedTracker = completedTrackers
+        
+        if cell.addButton.isSelected {
             todayCompletedTracker.insert(TrackerRecord(id: trackers.id, date: currentDate))
-            completedTrackers = todayCompletedTracker
-            
-            changeVisible()
+        } else {
+            todayCompletedTracker.remove(TrackerRecord(id: trackers.id, date: currentDate))
         }
+        
+        completedTrackers = todayCompletedTracker
     }
 }

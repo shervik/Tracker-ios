@@ -13,7 +13,6 @@ protocol CollectionViewDelegate: AnyObject {
 }
 
 final class CollectionView: NSObject {
-    
     weak var delegate: CollectionViewDelegate?
     private var scheduleVC: ScheduleViewController?
     
@@ -89,7 +88,8 @@ extension CollectionView: UICollectionViewDataSource {
         case 2:
             return emojiList.count
         default:
-            fatalError("Unsupported section in numberOfItemsInSection")
+            assertionFailure("Unsupported section in numberOfItemsInSection")
+            return 0
         }
     }
     
@@ -102,7 +102,8 @@ extension CollectionView: UICollectionViewDataSource {
         case 2:
             return emojiCell(for: indexPath, collectionView: collectionView)
         default:
-            fatalError("Unsupported section in cellForItemAt")
+            assertionFailure("Unsupported section in cellForItemAt")
+            return UICollectionViewCell()
         }
     }
     
@@ -115,7 +116,7 @@ extension CollectionView: UICollectionViewDataSource {
         switch indexPath.section {
         case 2: headerCell.headerText.text = "Emoji"
         default:
-            fatalError("Unsupported header in sectionForItemAt")
+            assertionFailure("Unsupported header in sectionForItemAt")
         }
         
         return headerCell

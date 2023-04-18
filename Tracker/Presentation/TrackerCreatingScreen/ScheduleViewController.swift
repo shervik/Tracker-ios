@@ -7,26 +7,26 @@
 
 import UIKit
 
+private enum Constants {
+    private static let isSmall = UIDevice.current.accessibilityFrame.height < 600
+    
+    static let bottomToSafeArea: CGFloat = isSmall ? 24 : 16
+    static let bottomToButton: CGFloat = isSmall ? 24 : 47
+    static let cornerRadius: CGFloat = 16
+    static let paddingForSeparator: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+    static let paddingForView: CGFloat = 16
+    static let buttonFont: UIFont = .systemFont(ofSize: 16, weight: .medium)
+    static let cellFont: UIFont = .systemFont(ofSize: 17, weight: .regular)
+    static let heightButton: CGFloat = 60
+    static let heightRowTable: CGFloat = 75
+}
+
 protocol ScheduleViewControllerDelegate: AnyObject {
     func didSelectWeekDay(days: Set<WeekDay>)
 }
 
 final class ScheduleViewController: UIViewController {
     weak var delegate: ScheduleViewControllerDelegate?
-    
-    private enum Constants {
-        private static let isSmall = UIDevice.current.accessibilityFrame.height < 600
-        
-        static let bottomToSafeArea: CGFloat = isSmall ? 24 : 16
-        static let bottomToButton: CGFloat = isSmall ? 24 : 47
-        static let cornerRadius: CGFloat = 16
-        static let paddingForSeparator: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        static let paddingForView: CGFloat = 16
-        static let buttonFont: UIFont = .systemFont(ofSize: 16, weight: .medium)
-        static let cellFont: UIFont = .systemFont(ofSize: 17, weight: .regular)
-        static let heightButton: CGFloat = 60
-        static let heightRowTable: CGFloat = 75
-    }
     
     private let daysOfWeek = WeekDay.allCases
     private var selectDays: Set<WeekDay> = []

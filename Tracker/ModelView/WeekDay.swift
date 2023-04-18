@@ -15,9 +15,7 @@ enum WeekDay: Int, CaseIterable {
     case thursday
     case friday
     case saturday
-    
-    static var allCases: [WeekDay] { [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday] }
-    
+        
     var fullName: String {
         switch self {
         case .monday: return "Понедельник"

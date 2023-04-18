@@ -7,6 +7,13 @@
 
 import UIKit
 
+private enum Constants {
+    static let cornerRadius: CGFloat = 16
+    static let horizontalPadding: CGFloat = 20
+    static let spaceBetweenButtons: CGFloat = 16
+    static let buttonFont: UIFont = .systemFont(ofSize: 16, weight: .medium)
+    static let heightButton: CGFloat = 60
+}
 
 final class TrackerTypeViewController: UIViewController {
     private var handler: (Tracker) -> Void
@@ -15,9 +22,9 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
         button.backgroundColor = .ypBlack
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.titleLabel?.font = Constants.buttonFont
         button.addTarget(self, action: #selector(createHabit), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -27,9 +34,9 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Нерегулярное событие", for: .normal)
         button.backgroundColor = .ypBlack
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.titleLabel?.font = Constants.buttonFont
         button.addTarget(self, action: #selector(createEvent), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -73,15 +80,15 @@ final class TrackerTypeViewController: UIViewController {
 
     private func setupConstraint() {
         NSLayoutConstraint.activate([
-            addHabitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addHabitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            addHabitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.horizontalPadding),
+            addHabitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.horizontalPadding),
             addHabitButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            addHabitButton.heightAnchor.constraint(equalToConstant: 60),
+            addHabitButton.heightAnchor.constraint(equalToConstant: Constants.heightButton),
 
-            addEventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addEventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addEventButton.topAnchor.constraint(equalTo: addHabitButton.bottomAnchor, constant: 16),
-            addEventButton.heightAnchor.constraint(equalToConstant: 60)
+            addEventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.horizontalPadding),
+            addEventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.horizontalPadding),
+            addEventButton.topAnchor.constraint(equalTo: addHabitButton.bottomAnchor, constant: Constants.spaceBetweenButtons),
+            addEventButton.heightAnchor.constraint(equalToConstant: Constants.heightButton)
 
         ])
     }

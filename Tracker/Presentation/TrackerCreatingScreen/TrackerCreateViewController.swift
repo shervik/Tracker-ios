@@ -163,7 +163,8 @@ extension TrackerCreateViewController {
             case 2: return self.getEmojiListLayout()
             case 3: return self.getColorListLayout()
             default:
-                fatalError("Unsupported section in generateLayout")
+                assertionFailure("Unsupported section in generateLayout")
+                return nil
             }
         }
     }

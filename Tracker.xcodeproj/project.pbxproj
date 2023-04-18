@@ -29,7 +29,6 @@
 		55E7D73729DB723D00423770 /* TextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73629DB723D00423770 /* TextFieldCell.swift */; };
 		55E7D73929DB727A00423770 /* SettingsListCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73829DB727A00423770 /* SettingsListCells.swift */; };
 		55E7D73B29DC7E8900423770 /* EmojiCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73A29DC7E8900423770 /* EmojiCell.swift */; };
-		55E7D73D29DC8C3D00423770 /* ColorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73C29DC8C3D00423770 /* ColorCell.swift */; };
 		55E7D73F29DD762D00423770 /* HeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73E29DD762D00423770 /* HeaderCell.swift */; };
 		55E7D74329DD875D00423770 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D74229DD875D00423770 /* CollectionView.swift */; };
 		55E7D74529DDA5A700423770 /* WeekDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D74429DDA5A700423770 /* WeekDay.swift */; };
@@ -60,7 +59,6 @@
 		55E7D73629DB723D00423770 /* TextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldCell.swift; sourceTree = "<group>"; };
 		55E7D73829DB727A00423770 /* SettingsListCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsListCells.swift; sourceTree = "<group>"; };
 		55E7D73A29DC7E8900423770 /* EmojiCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCell.swift; sourceTree = "<group>"; };
-		55E7D73C29DC8C3D00423770 /* ColorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCell.swift; sourceTree = "<group>"; };
 		55E7D73E29DD762D00423770 /* HeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCell.swift; sourceTree = "<group>"; };
 		55E7D74229DD875D00423770 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 		55E7D74429DDA5A700423770 /* WeekDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDay.swift; sourceTree = "<group>"; };
@@ -185,7 +183,6 @@
 				55E7D73629DB723D00423770 /* TextFieldCell.swift */,
 				55E7D73829DB727A00423770 /* SettingsListCells.swift */,
 				55E7D73A29DC7E8900423770 /* EmojiCell.swift */,
-				55E7D73C29DC8C3D00423770 /* ColorCell.swift */,
 				55E7D73E29DD762D00423770 /* HeaderCell.swift */,
 			);
 			path = SettingsCells;
@@ -268,7 +265,6 @@
 				55E7D74529DDA5A700423770 /* WeekDay.swift in Sources */,
 				55DD0B3029CF7D660028FCDE /* TrackerListHeader.swift in Sources */,
 				55DD0B9329D63F0F0028FCDE /* UITextField+Extensions.swift in Sources */,
-				55E7D73D29DC8C3D00423770 /* ColorCell.swift in Sources */,
 				55E7D73B29DC7E8900423770 /* EmojiCell.swift in Sources */,
 				55E7D73929DB727A00423770 /* SettingsListCells.swift in Sources */,
 				55DD0B1629CF19E40028FCDE /* AppDelegate.swift in Sources */,
