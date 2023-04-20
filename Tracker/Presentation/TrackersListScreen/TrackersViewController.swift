@@ -267,7 +267,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerCellDelegate
 extension TrackersViewController: TrackerCellDelegate {
     
-    func didDoneTracker(_ cell: TrackerCell) {
+    func didCompletedTracker(_ cell: TrackerCell) {
         guard let indexPath = trackerCollection.indexPath(for: cell) else { return }
         
         let trackers = visibleCategories[indexPath.section].trackersList[indexPath.row]
@@ -280,5 +280,9 @@ extension TrackersViewController: TrackerCellDelegate {
         }
         
         completedTrackers = todayCompletedTracker
+    }
+    
+    func didShowErrorForTracker() {
+        SnackbarView.show(frame: view.frame, message: "Нельзя отметить трекер для будущей даты")
     }
 }

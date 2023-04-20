@@ -15,7 +15,8 @@ private enum Constants {
 }
 
 protocol TrackerCellDelegate: AnyObject {
-    func didDoneTracker(_ cell: TrackerCell)
+    func didCompletedTracker(_ cell: TrackerCell)
+    func didShowErrorForTracker()
 }
 
 final class TrackerCell: UICollectionViewCell {
@@ -121,7 +122,9 @@ final class TrackerCell: UICollectionViewCell {
             countDays += sender.isSelected ? 1 : -1
             dayLabel.text = "\(countDays) день"
             
-            delegate?.didDoneTracker(self)
+            delegate?.didCompletedTracker(self)
+        } else {
+            delegate?.didShowErrorForTracker()
         }
     }
     
