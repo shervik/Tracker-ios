@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TextFieldCellDelegate: AnyObject {
-    func didEnabledCreateButton(textField: UITextField)
+    func getTitleTrecker(from textField: UITextField)
 }
 
 final class TextFieldCell: UICollectionViewCell {
@@ -53,13 +53,15 @@ final class TextFieldCell: UICollectionViewCell {
     
     @objc private func textFieldDidChange(_ sender: UITextField) {
         let maxCharacters = 38
-        if let text = sender.text, text.count > maxCharacters {
+        guard let text = sender.text else { return }
+        if text.count > maxCharacters {
             errorTitle.text = "Ограничение \(maxCharacters) символов"
             errorTitle.isHidden = false
         } else {
             errorTitle.isHidden = true
         }
-        delegate?.didEnabledCreateButton(textField: sender)
+        
+        delegate?.getTitleTrecker(from: sender)
     }
     
     private func setupConstraint() {

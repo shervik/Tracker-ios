@@ -11,28 +11,37 @@ final class EmojiCell: UICollectionViewCell {
     static let identifier = "EmojiCell"
     
     lazy var emojiLabel = {
-        let label = UILabel()
+        let label = UILabel(frame: outlineView.bounds.insetBy(dx: 6, dy: 6))
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    lazy var outlineView = {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 52, height: 52))
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 8
+        return view
+    }()
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if isSelected {
+            outlineView.backgroundColor = .ypLightGray
+        } else {
+            outlineView.backgroundColor = .clear
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        contentView.addSubview(emojiLabel)
-        setupConstraint()
+        contentView.addSubview(outlineView)
+        outlineView.addSubview(emojiLabel)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-    }
-    
-    private func setupConstraint() {
-        NSLayoutConstraint.activate([
-            emojiLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-        ])        
     }
 }

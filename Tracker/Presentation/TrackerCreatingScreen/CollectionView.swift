@@ -9,10 +9,11 @@ import UIKit
 
 protocol CollectionViewDelegate: AnyObject {
     func didOpenScreen(_ view: UIViewController)
-    func didEnabledCreateButton(textField: UITextField, schedule: Set<WeekDay>)
+    func didEnabledCreateButton(isEnabledCreate: Bool, isEmptyWeekDay: Bool)
 }
 
 final class CollectionView: NSObject {
+    
     weak var delegate: CollectionViewDelegate?
     private var scheduleVC: ScheduleViewController?
     
@@ -20,6 +21,36 @@ final class CollectionView: NSObject {
     
     private var listSettingsItem = [String]()
     private var weekDayList: Set<WeekDay> = []
+    private var newTrackerTitle = String() {
+        didSet {
+            arrayForSelectedItems["Title"] = newTrackerTitle
+        }
+    }
+    
+    private var newTrackerEmoji = String() {
+        didSet {
+            arrayForSelectedItems["Emoji"] = newTrackerEmoji
+        }
+    }
+    
+    private var newTrackerColor = UIColor() {
+        didSet {
+            arrayForSelectedItems["Color"] = newTrackerColor
+        }
+    }
+    
+    private var arrayForSelectedItems: [String : Any] = ["Title": String(), "Emoji": String(), "Color": UIColor.clear] {
+        didSet {
+            guard let title = arrayForSelectedItems["Title"] as? String,
+                  let color = arrayForSelectedItems["Color"] as? UIColor,
+                  let emoji = arrayForSelectedItems["Emoji"] as? String else { return }
+            
+            let hasEmptyValue = color == UIColor.clear || emoji == String() ||
+            title == String() || title.count > 38
+            
+            delegate?.didEnabledCreateButton(isEnabledCreate: !hasEmptyValue, isEmptyWeekDay: weekDayList.isEmpty)
+        }
+    }
     
     private var category: TrackerCategory = TrackerCategory(header: "Настольные игры",
                                                             trackersList: [])
@@ -28,8 +59,12 @@ final class CollectionView: NSObject {
                              "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                              "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     
-    private var newTrackerTitle = String()
-    private var newTrackerColor: UIColor = .red
+    private var colorList: Array<UIColor> = [.ypTrackerRed, .ypTrackerOrange, .ypTrackerBlue,
+                                             .ypTrackerPurple, .ypTrackerGreen, .ypTrackerModerateOrchid,
+                                             .ypTrackerFawn, .ypTrackerBlueLilac, .ypTrackerLime,
+                                             .ypTrackerDeepPurple, .ypTrackerTomato, .ypTrackerPurplePink,
+                                             .ypTrackerLightTurquoise, .ypTrackerCornflowerBlue, .ypTrackerOrchid,
+                                             .ypTrackerLightPink, .ypTrackerBlueDegrees, .ypTrackerModerateAspid]
     
     init(collection: UICollectionView) {
         self.collection = collection
@@ -38,12 +73,13 @@ final class CollectionView: NSObject {
         collection.register(TextFieldCell.self, forCellWithReuseIdentifier: TextFieldCell.identifier)
         collection.register(SettingsListCells.self, forCellWithReuseIdentifier: SettingsListCells.identifier)
         collection.register(EmojiCell.self, forCellWithReuseIdentifier: EmojiCell.identifier)
+        collection.register(ColorCell.self, forCellWithReuseIdentifier: ColorCell.identifier)
         collection.register(HeaderCell.self,
                             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                             withReuseIdentifier: HeaderCell.identifier)
         collection.delegate = self
         collection.dataSource = self
-        
+        collection.allowsMultipleSelection = true
         collection.reloadData()
     }
     
@@ -56,28 +92,21 @@ final class CollectionView: NSObject {
         return Tracker(id: UUID.init(),
                        name: newTrackerTitle,
                        color: newTrackerColor,
-                       emoji: emojiList.randomElement() ?? "",
+                       emoji: newTrackerEmoji,
                        schedule: weekDayList)
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension CollectionView: UITextFieldDelegate {
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        newTrackerTitle = textField.text ?? "default"
     }
 }
 
 // MARK: - TextFieldCellDelegate
 extension CollectionView: TextFieldCellDelegate {
-    func didEnabledCreateButton(textField: UITextField) {
-        delegate?.didEnabledCreateButton(textField: textField, schedule: weekDayList)
+    func getTitleTrecker(from textField: UITextField) {
+        newTrackerTitle = textField.text ?? String()
     }
 }
 
 // MARK: - UICollectionViewDataSource
 extension CollectionView: UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int { 3 }
+    func numberOfSections(in collectionView: UICollectionView) -> Int { 4 }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
@@ -87,6 +116,8 @@ extension CollectionView: UICollectionViewDataSource {
             return listSettingsItem.count
         case 2:
             return emojiList.count
+        case 3:
+            return colorList.count
         default:
             assertionFailure("Unsupported section in numberOfItemsInSection")
             return 0
@@ -101,6 +132,8 @@ extension CollectionView: UICollectionViewDataSource {
             return listCell(for: indexPath, collectionView: collectionView)
         case 2:
             return emojiCell(for: indexPath, collectionView: collectionView)
+        case 3:
+            return colorCell(for: indexPath, collectionView: collectionView)
         default:
             assertionFailure("Unsupported section in cellForItemAt")
             return UICollectionViewCell()
@@ -115,6 +148,7 @@ extension CollectionView: UICollectionViewDataSource {
         
         switch indexPath.section {
         case 2: headerCell.headerText.text = "Emoji"
+        case 3: headerCell.headerText.text = "Цвет"
         default:
             assertionFailure("Unsupported header in sectionForItemAt")
         }
@@ -128,7 +162,6 @@ extension CollectionView: UICollectionViewDataSource {
         else { return UICollectionViewCell() }
         
         cell.delegate = self
-        cell.textInput.delegate = self
         
         return cell
     }
@@ -169,16 +202,68 @@ extension CollectionView: UICollectionViewDataSource {
         
         return cell
     }
+    
+    private func colorCell(for indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell( withReuseIdentifier: ColorCell.identifier,
+                                                             for: indexPath) as? ColorCell
+        else { return UICollectionViewCell() }
+        
+        cell.colorView.backgroundColor = colorList[indexPath.row]
+        
+        return cell
+    }
 }
 
 // MARK: - UICollectionViewDelegate
 extension CollectionView: UICollectionViewDelegate {
+    
+    func isCollectionFilled() -> Bool {
+        for section in 0..<collection.numberOfSections {
+            for row in 0..<collection.numberOfItems(inSection: section) {
+                let cell = collection.cellForItem(at: IndexPath(row: row, section: section)) as? EmojiCell
+                if !(cell?.isSelected ?? false) { return false }
+            }
+        }
+        return true
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 1 && indexPath.row == 1 {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        
+        switch indexPath.section {
+        case 1: if indexPath.row == 1 {
             scheduleVC = ScheduleViewController()
             scheduleVC?.delegate = self
             delegate?.didOpenScreen(scheduleVC ?? UIViewController())
         }
+        case 2:
+            let emojiCell = cell as? EmojiCell
+            newTrackerEmoji = emojiCell?.emojiLabel.text ?? String()
+        case 3:
+            let colorCell = cell as? ColorCell
+            newTrackerColor = colorCell?.colorView.backgroundColor ?? UIColor.clear
+        default:
+            return
+        }
+        cell.isSelected = true
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        switch indexPath.section {
+        case 2: newTrackerEmoji = String()
+        case 3: newTrackerColor = UIColor.clear
+        default: return
+        }
+        cell.isSelected = false
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        collectionView.indexPathsForSelectedItems?.filter({
+            $0.section == indexPath.section
+        }).forEach({ collectionView.deselectItem(at: $0, animated: false) })
+        return true
     }
 }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		55BA1BCD29F1555C003004CB /* SnackbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA1BCC29F1555C003004CB /* SnackbarView.swift */; };
+		55BA1BCF29F2BB05003004CB /* ColorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA1BCE29F2BB05003004CB /* ColorCell.swift */; };
 		55DD0B1629CF19E40028FCDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0B1529CF19E40028FCDE /* AppDelegate.swift */; };
 		55DD0B1829CF19E40028FCDE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0B1729CF19E40028FCDE /* SceneDelegate.swift */; };
 		55DD0B1F29CF19E50028FCDE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55DD0B1E29CF19E50028FCDE /* Assets.xcassets */; };
@@ -37,6 +38,7 @@
 
 /* Begin PBXFileReference section */
 		55BA1BCC29F1555C003004CB /* SnackbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackbarView.swift; sourceTree = "<group>"; };
+		55BA1BCE29F2BB05003004CB /* ColorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCell.swift; sourceTree = "<group>"; };
 		55DD0B1229CF19E40028FCDE /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55DD0B1529CF19E40028FCDE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		55DD0B1729CF19E40028FCDE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				55E7D73829DB727A00423770 /* SettingsListCells.swift */,
 				55E7D73A29DC7E8900423770 /* EmojiCell.swift */,
 				55E7D73E29DD762D00423770 /* HeaderCell.swift */,
+				55BA1BCE29F2BB05003004CB /* ColorCell.swift */,
 			);
 			path = SettingsCells;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 				55E7D73B29DC7E8900423770 /* EmojiCell.swift in Sources */,
 				55E7D73929DB727A00423770 /* SettingsListCells.swift in Sources */,
 				55DD0B1629CF19E40028FCDE /* AppDelegate.swift in Sources */,
+				55BA1BCF29F2BB05003004CB /* ColorCell.swift in Sources */,
 				55BA1BCD29F1555C003004CB /* SnackbarView.swift in Sources */,
 				55DD0B7329D38A640028FCDE /* TrackersPresenter.swift in Sources */,
 				55DD0B9729D6E8850028FCDE /* ScheduleViewController.swift in Sources */,

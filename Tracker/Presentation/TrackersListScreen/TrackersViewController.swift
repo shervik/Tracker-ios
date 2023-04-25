@@ -116,7 +116,7 @@ final class TrackersViewController: UIViewController {
             let filteredTrackers = category.trackersList.filter { tracker in
                 guard let weekDay = WeekDay(rawValue: currentWeekDay)
                 else { preconditionFailure("Weekday must be in range of 1...7") }
-                return tracker.schedule.contains(weekDay)
+                return tracker.schedule.contains(weekDay) || tracker.schedule.isEmpty
             }
             return TrackerCategory(header: category.header, trackersList: filteredTrackers)
         }

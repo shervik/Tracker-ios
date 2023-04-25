@@ -15,6 +15,7 @@ private enum Constants {
     static let bottomToButton: CGFloat = isSmall ? 24 : 47
     static let topSettingsCollection: CGFloat = 24
     static let bottomSettingsCollection: CGFloat = 32
+    static let bottomEmojiCollection: CGFloat = 40
     static let cornerRadius: CGFloat = 16
     static let paddingForSeparator: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
     static let paddingForView: CGFloat = 16
@@ -130,13 +131,11 @@ final class TrackerCreateViewController: UIViewController {
 
 // MARK: - CollectionViewDelegate
 extension TrackerCreateViewController: CollectionViewDelegate {
-    func didEnabledCreateButton(textField: UITextField, schedule: Set<WeekDay>) {
-        let isNotEmptySchedule = (isRegular && !schedule.isEmpty) || !isRegular
+
+    func didEnabledCreateButton(isEnabledCreate: Bool, isEmptyWeekDay: Bool) {
+        let isNotEmptySchedule = (isRegular && !isEmptyWeekDay) || !isRegular
         
-        if let text = textField.text,
-           !text.isEmpty,
-           text.count < 38,
-           isNotEmptySchedule {
+        if isEnabledCreate && isNotEmptySchedule {
             createButton.backgroundColor = .ypBlack
             createButton.isEnabled = true
         } else {
@@ -248,7 +247,7 @@ extension TrackerCreateViewController {
         section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 0,
                                                         leading: Constants.paddingForView,
-                                                        bottom: 0,
+                                                        bottom: Constants.bottomEmojiCollection,
                                                         trailing: Constants.paddingForView)
         
         return section
