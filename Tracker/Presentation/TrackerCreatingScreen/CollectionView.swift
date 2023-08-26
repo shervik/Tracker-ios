@@ -13,12 +13,12 @@ protocol CollectionViewDelegate: AnyObject {
 }
 
 final class CollectionView: NSObject {
-    
     weak var delegate: CollectionViewDelegate?
     private var scheduleVC: ScheduleViewController?
     
     private let collection: UICollectionView
-    
+    private let trackerProvider: TrackerProviderProtocol
+
     private var listSettingsItem = [String]()
     private var weekDayList: Set<WeekDay> = []
     private var newTrackerTitle = String() {
@@ -68,6 +68,7 @@ final class CollectionView: NSObject {
     
     init(collection: UICollectionView) {
         self.collection = collection
+        self.trackerProvider = TrackerProvider()
         super.init()
         
         collection.register(TextFieldCell.self, forCellWithReuseIdentifier: TextFieldCell.identifier)

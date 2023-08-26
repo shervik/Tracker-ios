@@ -9,7 +9,8 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     private var presenter: TrackersPresenterProtocol?
-    
+//    private let trackerProvider: TrackerProviderProtocol
+
     private var categories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var visibleCategories: [TrackerCategory] = []
@@ -138,6 +139,7 @@ final class TrackersViewController: UIViewController {
         changeVisible()
     }
     
+    //TODO: 
     @objc func addTracker() {
         let vc = UINavigationController(rootViewController: TrackerTypeViewController { [weak self] newTracker in
             guard let self = self else { return }
@@ -224,21 +226,24 @@ extension TrackersViewController: UICollectionViewDataSource {
         else { return UICollectionViewCell() }
         
         cell.delegate = self
-        cell.currentDate = self.currentDate
-
+        
         let tracker = visibleCategories[indexPath.section].trackersList[indexPath.row]
+        let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
-        cell.trackerTitle.text = tracker.name
-        cell.emojiLabel.text = tracker.emoji
-        cell.cardView.backgroundColor = tracker.color
-        cell.addButton.backgroundColor = tracker.color
+        cell.configure(with: tracker,
+                       isCompletedToday: isTrackerCompletedToday(id: tracker.id),
+                       at: indexPath,
+                       completedDays: completedDays)
         
-        if !completedTrackers.contains(TrackerRecord(id: tracker.id, date: currentDate)) {
-            cell.resetStateButton()
+        return cell
+    }
+    
+    private func isTrackerCompletedToday(id: UUID) -> Bool {
+        completedTrackers.contains { trackerRecord in
+            let isSameDate = Calendar.current.isDate(trackerRecord.date, inSameDayAs: currentDate)
+            return trackerRecord.id == id && isSameDate
         }
         
-        cell.prepareForReuse()
-        return cell
     }
 }
 
@@ -266,20 +271,18 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - TrackerCellDelegate
 extension TrackersViewController: TrackerCellDelegate {
-    
-    func didCompletedTracker(_ cell: TrackerCell) {
-        guard let indexPath = trackerCollection.indexPath(for: cell) else { return }
-        
-        let trackers = visibleCategories[indexPath.section].trackersList[indexPath.row]
-        var todayCompletedTracker = completedTrackers
-        
-        if cell.addButton.isSelected {
-            todayCompletedTracker.insert(TrackerRecord(id: trackers.id, date: currentDate))
+    func didCompletedTracker(with id: UUID, at indexPath: IndexPath) {
+        if currentDate <= Date() {
+            completedTrackers.insert(TrackerRecord(id: id, date: currentDate))
+            trackerCollection.reloadItems(at: [indexPath])
         } else {
-            todayCompletedTracker.remove(TrackerRecord(id: trackers.id, date: currentDate))
+            didShowErrorForTracker()
         }
-        
-        completedTrackers = todayCompletedTracker
+    }
+    
+    func didUncompletedTracker(with id: UUID, at indexPath: IndexPath) {
+        completedTrackers.remove(TrackerRecord(id: id, date: currentDate))
+        trackerCollection.reloadItems(at: [indexPath])
     }
     
     func didShowErrorForTracker() {
