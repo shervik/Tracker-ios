@@ -9,17 +9,12 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     private var presenter: TrackersPresenterProtocol?
-//    private let trackerProvider: TrackerProviderProtocol
-
-    private var categories: [TrackerCategory] = []
-    private var completedTrackers: Set<TrackerRecord> = []
-    private var visibleCategories: [TrackerCategory] = []
+    private let trackerProvider: TrackerProviderProtocol = TrackerProvider()
+    
     private var currentDate = Date()
-    private var searchText: String = ""
     
     private lazy var navigationBar: UINavigationBar = {
         let navBar = UINavigationBar()
-        
         let addTrackerButton = UIBarButtonItem(image: UIImage(systemName: "plus",
                                                               withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)),
                                                style: .plain,
@@ -47,6 +42,7 @@ final class TrackersViewController: UIViewController {
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.delegate = self
         collection.dataSource = self
+        collection.backgroundColor = .ypWhite
         collection.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.identifier)
         collection.register(TrackerListHeader.self,
                             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -92,6 +88,7 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        trackerProvider.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,10 +96,12 @@ final class TrackersViewController: UIViewController {
         view.backgroundColor = .ypWhite
         title = "Трекеры"
         
-        view.addSubview(navigationBar)
         view.addSubview(trackerCollection)
+        view.addSubview(navigationBar)
         view.addSubview(errorImage)
         view.addSubview(errorTitle)
+        
+        changeVisible()
         configureConstraint()
     }
     
@@ -111,23 +110,12 @@ final class TrackersViewController: UIViewController {
     }
     
     private func changeVisible() {
-        let currentWeekDay = Calendar.current.component(.weekday, from: currentDate)
-        
-        self.visibleCategories = categories.compactMap { category in
-            let filteredTrackers = category.trackersList.filter { tracker in
-                guard let weekDay = WeekDay(rawValue: currentWeekDay)
-                else { preconditionFailure("Weekday must be in range of 1...7") }
-                return tracker.schedule.contains(weekDay) || tracker.schedule.isEmpty
-            }
-            return TrackerCategory(header: category.header, trackersList: filteredTrackers)
-        }
-        
         updateVisability()
         trackerCollection.reloadData()
     }
     
     private func updateVisability() {
-        let isCollectionVisible = !visibleCategories.isEmpty && !visibleCategories[0].trackersList.isEmpty
+        let isCollectionVisible = trackerProvider.numberOfSections != 0
         
         errorImage.isHidden = isCollectionVisible
         errorTitle.isHidden = isCollectionVisible
@@ -136,26 +124,12 @@ final class TrackersViewController: UIViewController {
     
     @objc func datePickerChanged(_ datePicker: UIDatePicker) {
         currentDate = datePicker.date
+        trackerProvider.searchForTracker(by: nil)
         changeVisible()
     }
     
-    //TODO: 
     @objc func addTracker() {
-        let vc = UINavigationController(rootViewController: TrackerTypeViewController { [weak self] newTracker in
-            guard let self = self else { return }
-            
-            if self.categories.isEmpty {
-                let newCategory = TrackerCategory(header: "Наименование категории", trackersList: [newTracker])
-                self.categories = [newCategory]
-            } else {
-                var trackers = self.categories[0].trackersList
-                trackers.append(newTracker)
-                let newCategory = TrackerCategory(header: self.categories[0].header, trackersList: trackers)
-                self.categories[0] = newCategory
-            }
-            self.changeVisible()
-            
-        })
+        let vc = UINavigationController(rootViewController: TrackerTypeViewController())
         present(vc, animated: true)
     }
     
@@ -180,19 +154,13 @@ final class TrackersViewController: UIViewController {
 // MARK: - UISearchResultsUpdating
 extension TrackersViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        searchText = searchController.searchBar.text ?? ""
-        if searchText.isEmpty {
-            changeVisible()
+        if !searchController.isActive {
+            trackerProvider.searchForTracker(by: nil)
         } else {
-            visibleCategories = categories.map({ category in
-                let filteredTrackers = category.trackersList.filter { tracker in
-                    return tracker.name.lowercased().contains(searchText.lowercased())
-                }
-                return TrackerCategory(header: category.header, trackersList: filteredTrackers)
-            })
+            let searchText = searchController.searchBar.text ?? ""
+            trackerProvider.searchForTracker(by: searchText)
         }
-        updateVisability()
-        trackerCollection.reloadData()
+        changeVisible()
     }
 }
 
@@ -207,16 +175,14 @@ extension TrackersViewController: UICollectionViewDataSource {
                                                                          for: indexPath) as? TrackerListHeader
         else { return UICollectionReusableView() }
         
-        if !visibleCategories.isEmpty {
-            view.titleLabel.text = "\(visibleCategories[indexPath.section].header)"
-        }
+        view.titleLabel.text = trackerProvider.name(of: indexPath.section)
         return view
     }
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int { return visibleCategories.count }
+    func numberOfSections(in collectionView: UICollectionView) -> Int { trackerProvider.numberOfSections }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return visibleCategories[section].trackersList.count
+        trackerProvider.numberOfItemsInSection(section)
     }
     
     func collectionView(_ collectionView: UICollectionView,
@@ -227,8 +193,8 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
-        let tracker = visibleCategories[indexPath.section].trackersList[indexPath.row]
-        let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
+        guard let tracker = trackerProvider.object(at: indexPath) else { return UICollectionViewCell() }
+        let completedDays = trackerProvider.trackerRecordCount(for: tracker.id)
         
         cell.configure(with: tracker,
                        isCompletedToday: isTrackerCompletedToday(id: tracker.id),
@@ -239,11 +205,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     private func isTrackerCompletedToday(id: UUID) -> Bool {
-        completedTrackers.contains { trackerRecord in
-            let isSameDate = Calendar.current.isDate(trackerRecord.date, inSameDayAs: currentDate)
-            return trackerRecord.id == id && isSameDate
-        }
-        
+        trackerProvider.isTrackerCompleted(id, with: currentDate)
     }
 }
 
@@ -258,14 +220,15 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
-        
-        return CGSize(width: collectionView.frame.width, height: 18)
+        let trackersListIsEmpty = trackerProvider.numberOfItemsInSection(section) == 0
+        return trackersListIsEmpty ? CGSize.zero : CGSize(width: collectionView.frame.width, height: 18)
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 12, left: 0, bottom: 16, right: 0)
+        let trackersListIsEmpty = trackerProvider.numberOfItemsInSection(section) == 0
+        return trackersListIsEmpty ? UIEdgeInsets.zero : UIEdgeInsets(top: 12, left: 0, bottom: 16, right: 0)
     }
 }
 
@@ -273,7 +236,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: TrackerCellDelegate {
     func didCompletedTracker(with id: UUID, at indexPath: IndexPath) {
         if currentDate <= Date() {
-            completedTrackers.insert(TrackerRecord(id: id, date: currentDate))
+            trackerProvider.updateTrackerRecord(id: id, date: currentDate)
             trackerCollection.reloadItems(at: [indexPath])
         } else {
             didShowErrorForTracker()
@@ -281,11 +244,36 @@ extension TrackersViewController: TrackerCellDelegate {
     }
     
     func didUncompletedTracker(with id: UUID, at indexPath: IndexPath) {
-        completedTrackers.remove(TrackerRecord(id: id, date: currentDate))
+        trackerProvider.updateTrackerRecord(id: id, date: currentDate)
         trackerCollection.reloadItems(at: [indexPath])
     }
     
     func didShowErrorForTracker() {
         SnackbarView.show(frame: view.frame, message: "Нельзя отметить трекер для будущей даты")
+    }
+}
+
+
+// MARK: - TrackerProviderDelegate
+extension TrackersViewController: TrackerProviderDelegate {
+    var currentWeekday: String {
+        Calendar.current.component(.weekday, from: currentDate).description
+    }
+    
+    func didUpdate(_ update: TrackerStoreUpdate) {
+        trackerCollection.performBatchUpdates {
+            trackerCollection.insertSections(update.insertedSections)
+            trackerCollection.deleteSections(update.deletedSections)
+            trackerCollection.insertItems(at: update.insertedIndexPaths)
+            trackerCollection.deleteItems(at: update.deletedIndexPaths)
+            trackerCollection.reloadItems(at: update.updatedIndexPaths)
+        } completion: { _ in
+            if let indexPathToScroll = update.insertedIndexPaths.last {
+                self.trackerCollection.scrollToItem(at: indexPathToScroll,
+                                                    at: .bottom,
+                                                    animated: true)
+            }
+        }
+        changeVisible()
     }
 }

@@ -16,7 +16,6 @@ private enum Constants {
 }
 
 final class TrackerTypeViewController: UIViewController {
-    private var handler: (Tracker) -> Void
     
     private lazy var addHabitButton = {
         let button = UIButton()
@@ -42,8 +41,7 @@ final class TrackerTypeViewController: UIViewController {
         return button
     }()
 
-    init(handler: @escaping (Tracker) -> Void) {
-        self.handler = handler
+    init() {
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -67,13 +65,13 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     @objc private func createHabit() {
-        let vc = TrackerCreateViewController(isRegular: true, handler: handler)
+        let vc = TrackerCreateViewController(isRegular: true)
         vc.title = "Новая привычка"
         navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc private func createEvent() {
-        let vc = TrackerCreateViewController(isRegular: false, handler: handler)
+        let vc = TrackerCreateViewController(isRegular: false)
         vc.title = "Новое нерегулярное событие"
         navigationController?.pushViewController(vc, animated: true)
     }

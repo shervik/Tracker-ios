@@ -8,22 +8,22 @@
 import Foundation
 
 final class UIScheduleMarshalling {
-//    func convertToInt(days: Set<WeekDay>) -> Int {
-//        var result = 0
-//        for weekday in days {
-//            result |= 1 << weekday.rawValue
-//        }
-//        return result
-//    }
-//    
-//    func convertToWeekday(binary: Int) -> Set<WeekDay> {
-//        var result = Set<WeekDay>()
-//        for i in 0..<WeekDay.allCases.count {
-//            guard let day = WeekDay(rawValue: i) else { return result }
-//            if binary & (1 << i) != 0 {
-//                result.insert(day)
-//            }
-//        }
-//        return result
-//    }
+    func convertToInt(_ days: Set<WeekDay>) -> String {
+        var result = ""
+        for weekday in days {
+            result += String(weekday.rawValue)
+        }
+        return result
+    }
+    
+    func convertToWeekday(_ numbersWeekday: String) -> Set<WeekDay> {
+        var result = Set<WeekDay>()
+        let array = numbersWeekday.compactMap { Int(String($0)) }
+
+        for i in array {
+            guard let day = WeekDay(rawValue: i) else { return result }
+                result.insert(day)
+        }
+        return result
+    }
 }

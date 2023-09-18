@@ -52,7 +52,7 @@ final class CollectionView: NSObject {
         }
     }
     
-    private var category: TrackerCategory = TrackerCategory(header: "Настольные игры",
+    private var category: TrackerCategory = TrackerCategory(header: "Чудеса единорогов",
                                                             trackersList: [])
     
     private var emojiList = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
@@ -89,12 +89,13 @@ final class CollectionView: NSObject {
         listSettingsItem = values
     }
     
-    func createTracker() -> Tracker {
-        return Tracker(id: UUID.init(),
-                       name: newTrackerTitle,
-                       color: newTrackerColor,
-                       emoji: newTrackerEmoji,
-                       schedule: weekDayList)
+    func createTracker() {
+        let newTracker = Tracker(id: UUID.init(),
+                              name: newTrackerTitle,
+                              color: newTrackerColor,
+                              emoji: newTrackerEmoji,
+                              schedule: weekDayList)
+        trackerProvider.addCategory(category.header, with: newTracker)
     }
 }
 

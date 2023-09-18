@@ -30,7 +30,6 @@ final class TrackerCell: UICollectionViewCell {
     
     private lazy var subview = {
         let view = UIView()
-        view.backgroundColor = .ypWhite
         view.addSubview(dayLabel)
         view.addSubview(addButton)
         view.translatesAutoresizingMaskIntoConstraints = false

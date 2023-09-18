@@ -1,5 +1,5 @@
 //
-//  TrackerSettingsViewController.swift
+//  TrackerCreateViewController.swift
 //  Tracker
 //
 //  Created by Виктория Щербакова on 31.03.2023.
@@ -26,7 +26,6 @@ private enum Constants {
 
 final class TrackerCreateViewController: UIViewController {
     
-    private let handler: (Tracker) -> Void
     private var isRegular: Bool
     private lazy var helper = CollectionView(collection: collectionView)
     
@@ -74,9 +73,8 @@ final class TrackerCreateViewController: UIViewController {
         return stackView
     }()
     
-    init(isRegular: Bool, handler: @escaping (Tracker) -> Void) {
+    init(isRegular: Bool) {
         self.isRegular = isRegular
-        self.handler = handler
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -106,7 +104,7 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     @objc private func successCreatedTracker() {
-        handler(helper.createTracker())
+        helper.createTracker()
         dismiss(animated: true)
     }
     

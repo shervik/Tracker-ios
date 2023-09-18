@@ -14,6 +14,7 @@ final class TabBarController: UITabBarController {
         let separator = Separator()
         tabBar.addSubview(separator)
         NSLayoutConstraint.activate(separator.layoutConstraints(for: tabBar))
+        tabBar.backgroundColor = .ypWhite
     }
     
     override func viewDidLoad() {
