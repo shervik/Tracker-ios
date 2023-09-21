@@ -87,6 +87,7 @@ final class TrackerCreateViewController: UIViewController {
         navigationItem.setHidesBackButton(true, animated: false)
         helper.delegate = self
         helper.add(items: setSettingList())
+        hideKeyboard()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,6 +107,12 @@ final class TrackerCreateViewController: UIViewController {
     @objc private func successCreatedTracker() {
         helper.createTracker()
         dismiss(animated: true)
+    }
+    
+    private func hideKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tapGesture)
+        tapGesture.cancelsTouchesInView = false
     }
     
     private func setSettingList() -> Array<String> {
