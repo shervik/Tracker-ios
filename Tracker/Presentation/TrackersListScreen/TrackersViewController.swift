@@ -11,7 +11,7 @@ final class TrackersViewController: UIViewController {
     private var presenter: TrackersPresenterProtocol?
     private let trackerProvider: TrackerProviderProtocol = TrackerProvider()
     
-    private var currentDate = Date()
+    private lazy var currentDate = Date().startOfDay
     
     private lazy var navigationBar: UINavigationBar = {
         let navBar = UINavigationBar()
@@ -62,6 +62,9 @@ final class TrackersViewController: UIViewController {
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.firstWeekday = 2
+        datePicker.calendar = calendar
         datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
@@ -123,7 +126,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc func datePickerChanged(_ datePicker: UIDatePicker) {
-        currentDate = datePicker.date
+        currentDate = datePicker.date.startOfDay
         trackerProvider.searchForTracker(by: nil)
         changeVisible()
     }
@@ -200,12 +203,11 @@ extension TrackersViewController: UICollectionViewDataSource {
                        isCompletedToday: isTrackerCompletedToday(id: tracker.id),
                        at: indexPath,
                        completedDays: completedDays)
-        
         return cell
     }
     
     private func isTrackerCompletedToday(id: UUID) -> Bool {
-        trackerProvider.isTrackerCompleted(id, with: currentDate)
+        return trackerProvider.isTrackerCompleted(id, with: currentDate)
     }
 }
 

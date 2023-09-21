@@ -25,8 +25,8 @@ final class TrackerRecordStore: TrackerRecordStoreProtocol {
         guard let id = record.id else { return }
 
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
-        let predicateForDate = NSPredicate(format: "date == %@", date as NSDate)
-        let predicateForId = NSPredicate(format: "id == %@", id.uuidString)
+        let predicateForDate = NSPredicate(format: "date == %@", date as CVarArg)
+        let predicateForId = NSPredicate(format: "id == %@", id as CVarArg)
         fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForDate, predicateForId])
 
         let result = try managedContext.fetch(fetchRequest)
@@ -57,8 +57,8 @@ final class TrackerRecordStore: TrackerRecordStoreProtocol {
     
     func isTrackerCompleted(_ id: UUID, with date: Date) -> Bool {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
-        let predicateForId = NSPredicate(format: "id == %@", id.uuidString)
-        let predicateForDate = NSPredicate(format: "date == %@", date as NSDate)
+        let predicateForId = NSPredicate(format: "id == %@", id as CVarArg)
+        let predicateForDate = NSPredicate(format: "date == %@", date as CVarArg)
         fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForId, predicateForDate])
 
         do {

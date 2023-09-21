@@ -19,8 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 fatalError("Unable to load persistent stores: \(error)")
             }
         })
-        // TODO: удалить после готовности
-        print(container.persistentStoreDescriptions.first?.url)
         return container
     }()
     

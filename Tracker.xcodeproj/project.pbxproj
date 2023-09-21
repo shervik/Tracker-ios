@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5529E5C22ABB76B000FA7645 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5529E5C12ABB76B000FA7645 /* Date+Extensions.swift */; };
 		55BA1BCD29F1555C003004CB /* SnackbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA1BCC29F1555C003004CB /* SnackbarView.swift */; };
 		55BA1BCF29F2BB05003004CB /* ColorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA1BCE29F2BB05003004CB /* ColorCell.swift */; };
 		55BA1BD429F8206F003004CB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 55BA1BD229F8206F003004CB /* Model.xcdatamodeld */; };
@@ -44,6 +45,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5529E5C12ABB76B000FA7645 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		55BA1BCC29F1555C003004CB /* SnackbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackbarView.swift; sourceTree = "<group>"; };
 		55BA1BCE29F2BB05003004CB /* ColorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCell.swift; sourceTree = "<group>"; };
 		55BA1BD329F8206F003004CB /* Library.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Library.xcdatamodel; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 		55BA1BE329F9C86B003004CB /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				55EAA1462A78072E00790F07 /* TrackerProvider.swift */,
 				55BA1BE429F9C8CD003004CB /* Store */,
 				55BA1BD229F8206F003004CB /* Model.xcdatamodeld */,
 			);
@@ -108,7 +111,6 @@
 				55BA1C1229FDB4D9003004CB /* TrackerCategoryStore.swift */,
 				55BA1C1329FDB4D9003004CB /* TrackerRecordStore.swift */,
 				55BA1C1529FDB4D9003004CB /* TrackerStore.swift */,
-				55EAA1462A78072E00790F07 /* TrackerProvider.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -180,6 +182,7 @@
 				55BA1BE129F97027003004CB /* UIScheduleMarshalling.swift */,
 				55DD0B3C29D37E970028FCDE /* UIColor+Extensions.swift */,
 				55DD0B9229D63F0F0028FCDE /* UITextField+Extensions.swift */,
+				5529E5C12ABB76B000FA7645 /* Date+Extensions.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				55DD0B1829CF19E40028FCDE /* SceneDelegate.swift in Sources */,
 				55DD0B7129D38A0B0028FCDE /* TrackersViewController.swift in Sources */,
 				55DD0B8629D626F20028FCDE /* Tracker.swift in Sources */,
+				5529E5C22ABB76B000FA7645 /* Date+Extensions.swift in Sources */,
 				55DD0B8D29D62BB50028FCDE /* TrackerTypeViewController.swift in Sources */,
 				55E7D73729DB723D00423770 /* TextFieldCell.swift in Sources */,
 				55DD0B3D29D37E970028FCDE /* UIColor+Extensions.swift in Sources */,

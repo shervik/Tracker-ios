@@ -80,10 +80,6 @@ final class TrackerProvider: NSObject {
         let persistentContainer = appDelegate.persistentContainer
         managedObjectContext = persistentContainer.viewContext
     }
-    
-    func getWeekday(_ currentDate: Date) -> Int {
-        Calendar.current.component(.weekday, from: currentDate)
-    }
 }
 
 // MARK: - TrackerProviderProtocol

@@ -20,7 +20,7 @@ final class CollectionView: NSObject {
     private let trackerProvider: TrackerProviderProtocol
 
     private var listSettingsItem = [String]()
-    private var weekDayList: Set<WeekDay> = []
+    private var weekDayList: [WeekDay] = []
     private var newTrackerTitle = String() {
         didSet {
             arrayForSelectedItems["Title"] = newTrackerTitle
@@ -94,7 +94,7 @@ final class CollectionView: NSObject {
                               name: newTrackerTitle,
                               color: newTrackerColor,
                               emoji: newTrackerEmoji,
-                              schedule: weekDayList)
+                              schedule: Set(weekDayList))
         trackerProvider.addCategory(category.header, with: newTracker)
     }
 }
@@ -189,7 +189,9 @@ extension CollectionView: UICollectionViewDataSource {
         if indexPath.row == 0 {
             cell.subtitleLabel.text = category.header
         } else {
-            cell.subtitleLabel.text = weekDayList.map { String($0.cutName) }.joined(separator: ", ")
+            cell.subtitleLabel.text = weekDayList.count == 7 ? "Каждый день" : weekDayList.map {
+                String($0.cutName)
+            }.joined(separator: ", ")
         }
         
         return cell
@@ -272,7 +274,16 @@ extension CollectionView: UICollectionViewDelegate {
 // MARK: - ScheduleViewControllerDelegate
 extension CollectionView: ScheduleViewControllerDelegate {
     func didSelectWeekDay(days: Set<WeekDay>) {
-        weekDayList = days
+        weekDayList = days.sorted { day1, day2 in
+            if day1 == .sunday {
+                return false
+            }
+            if day2 == .sunday {
+                return true
+            }
+            return day1.rawValue < day2.rawValue
+        }
+        
         collection.reloadSections(IndexSet(integer: 1))
     }
 }

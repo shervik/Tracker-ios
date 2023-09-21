@@ -20,6 +20,7 @@ final class TrackerTypeViewController: UIViewController {
     private lazy var addHabitButton = {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
@@ -33,6 +34,7 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Нерегулярное событие", for: .normal)
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
         button.titleLabel?.font = Constants.buttonFont
