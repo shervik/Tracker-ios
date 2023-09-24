@@ -20,7 +20,7 @@ final class EmojiCell: UICollectionViewCell {
     lazy var outlineView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 52, height: 52))
         view.layer.masksToBounds = true
-        view.layer.cornerRadius = 8
+        view.layer.cornerRadius = 16
         return view
     }()
     

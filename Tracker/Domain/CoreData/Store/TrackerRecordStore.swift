@@ -9,43 +9,52 @@ import CoreData
 import UIKit
 
 protocol TrackerRecordStoreProtocol {
-    func updateRecord(_ record: TrackerCoreData, date: Date) throws
+    func updateRecord(_ record: TrackerRecord, date: Date)
     func getCountRecords(for id: UUID) -> Int
     func isTrackerCompleted(_ id: UUID, with date: Date) -> Bool
 }
 
-final class TrackerRecordStore: TrackerRecordStoreProtocol {
+final class TrackerRecordStore: NSObject, TrackerRecordStoreProtocol {
     private let managedContext: NSManagedObjectContext
 
-    init(managedContext: NSManagedObjectContext) {
-        self.managedContext = managedContext
+    init(context: NSManagedObjectContext) {
+        self.managedContext = context
     }
     
-    func updateRecord(_ record: TrackerCoreData, date: Date) throws {
-        guard let id = record.id else { return }
-
+    convenience override init() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            preconditionFailure("Could not convert delegate to AppDelegate")
+        }
+        self.init(context: appDelegate.persistentContainer.viewContext)
+    }
+    
+    
+    func updateRecord(_ record: TrackerRecord, date: Date) {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
         let predicateForDate = NSPredicate(format: "date == %@", date as CVarArg)
-        let predicateForId = NSPredicate(format: "id == %@", id as CVarArg)
+        let predicateForId = NSPredicate(format: "id == %@", record.id as CVarArg)
         fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForDate, predicateForId])
-
-        let result = try managedContext.fetch(fetchRequest)
         
-        if let existingRecord = result.first {
-            managedContext.delete(existingRecord)
-        } else {
-            let item = TrackerRecordCoreData(context: managedContext)
-            item.id = record.id
-            item.date = date
-            item.tracker = record
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            
+            if let existingRecord = result.first {
+                managedContext.delete(existingRecord)
+            } else {
+                let newItem = TrackerRecordCoreData(context: managedContext)
+                newItem.id = record.id
+                newItem.date = date
+            }
+            
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error fetching or saving TrackerRecordCoreData: \(error)")
         }
-        
-        try managedContext.save()
     }
     
-    func getCountRecords(for id: UUID) -> Int {
+    func getCountRecords(for trackerId: UUID) -> Int {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id.uuidString)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId.uuidString)
         
         do {
             let results = try managedContext.fetch(fetchRequest)

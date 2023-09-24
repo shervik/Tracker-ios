@@ -9,31 +9,39 @@ import CoreData
 import UIKit
 
 protocol TrackerCategoryStoreProtocol {
-    func createCategory(_ name: String, with trackerCoreData: TrackerCoreData) throws
+    func createCategory(_ name: String)
 }
 
 final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
     private let managedContext: NSManagedObjectContext
     
-    init(managedContext: NSManagedObjectContext) {
-        self.managedContext = managedContext
+    init(context: NSManagedObjectContext) {
+        self.managedContext = context
     }
     
-    func createCategory(_ name: String, with trackerCoreData: TrackerCoreData) throws {
+    convenience override init() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            preconditionFailure("Could not convert delegate to AppDelegate")
+        }
+        self.init(context: appDelegate.persistentContainer.viewContext)
+    }
+    
+    func createCategory(_ name: String) {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@",
                                              #keyPath(TrackerCategoryCoreData.header),
                                              name)
-        let result = try managedContext.fetch(fetchRequest)
         
-        if let category = result.first {
-            category.addToTrackerList(trackerCoreData)
-        } else {
-            let category = TrackerCategoryCoreData(context: managedContext)
-            category.header = name
-            category.addToTrackerList(trackerCoreData)
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            
+            if result.isEmpty {
+                let newCategory = TrackerCategoryCoreData(context: managedContext)
+                newCategory.header = name
+                try managedContext.save()
+            }
+        } catch {
+            preconditionFailure("Error fetching or saving TrackerCategoryCoreData: \(error)")
         }
-        
-        try managedContext.save()
     }
 }

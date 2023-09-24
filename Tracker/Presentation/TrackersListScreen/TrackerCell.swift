@@ -15,8 +15,8 @@ private enum Constants {
 }
 
 protocol TrackerCellDelegate: AnyObject {
-    func didCompletedTracker(with id: UUID, at indexPath: IndexPath)
-    func didUncompletedTracker(with id: UUID, at indexPath: IndexPath)
+    func didCompletedTracker(with trackerId: UUID, at indexPath: IndexPath)
+    func didUncompletedTracker(with trackerId: UUID, at indexPath: IndexPath)
     func didShowErrorForTracker()
 }
 

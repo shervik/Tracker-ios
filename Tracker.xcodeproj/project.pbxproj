@@ -39,9 +39,8 @@
 		55E7D73929DB727A00423770 /* SettingsListCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73829DB727A00423770 /* SettingsListCells.swift */; };
 		55E7D73B29DC7E8900423770 /* EmojiCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73A29DC7E8900423770 /* EmojiCell.swift */; };
 		55E7D73F29DD762D00423770 /* HeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D73E29DD762D00423770 /* HeaderCell.swift */; };
-		55E7D74329DD875D00423770 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D74229DD875D00423770 /* CollectionView.swift */; };
+		55E7D74329DD875D00423770 /* TrackerSetupCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D74229DD875D00423770 /* TrackerSetupCollectionView.swift */; };
 		55E7D74529DDA5A700423770 /* WeekDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7D74429DDA5A700423770 /* WeekDay.swift */; };
-		55EAA1472A78072E00790F07 /* TrackerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EAA1462A78072E00790F07 /* TrackerProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,9 +78,8 @@
 		55E7D73829DB727A00423770 /* SettingsListCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsListCells.swift; sourceTree = "<group>"; };
 		55E7D73A29DC7E8900423770 /* EmojiCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCell.swift; sourceTree = "<group>"; };
 		55E7D73E29DD762D00423770 /* HeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCell.swift; sourceTree = "<group>"; };
-		55E7D74229DD875D00423770 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
+		55E7D74229DD875D00423770 /* TrackerSetupCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerSetupCollectionView.swift; sourceTree = "<group>"; };
 		55E7D74429DDA5A700423770 /* WeekDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDay.swift; sourceTree = "<group>"; };
-		55EAA1462A78072E00790F07 /* TrackerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,7 +96,6 @@
 		55BA1BE329F9C86B003004CB /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				55EAA1462A78072E00790F07 /* TrackerProvider.swift */,
 				55BA1BE429F9C8CD003004CB /* Store */,
 				55BA1BD229F8206F003004CB /* Model.xcdatamodeld */,
 			);
@@ -225,7 +222,7 @@
 				55DD0B9629D6E8850028FCDE /* ScheduleViewController.swift */,
 				55DD0B8C29D62BB50028FCDE /* TrackerTypeViewController.swift */,
 				55DD0B8E29D636820028FCDE /* TrackerCreateViewController.swift */,
-				55E7D74229DD875D00423770 /* CollectionView.swift */,
+				55E7D74229DD875D00423770 /* TrackerSetupCollectionView.swift */,
 			);
 			path = TrackerCreatingScreen;
 			sourceTree = "<group>";
@@ -317,13 +314,12 @@
 				55DD0B7729D38C1E0028FCDE /* StatisticViewController.swift in Sources */,
 				55DD0B8A29D6271B0028FCDE /* TrackerRecord.swift in Sources */,
 				55BA1C1629FDB4D9003004CB /* TrackerCategoryStore.swift in Sources */,
-				55E7D74329DD875D00423770 /* CollectionView.swift in Sources */,
+				55E7D74329DD875D00423770 /* TrackerSetupCollectionView.swift in Sources */,
 				55E7D74529DDA5A700423770 /* WeekDay.swift in Sources */,
 				55DD0B3029CF7D660028FCDE /* TrackerListHeader.swift in Sources */,
 				55BA1BE029F95B78003004CB /* UIColorMarshalling.swift in Sources */,
 				55DD0B9329D63F0F0028FCDE /* UITextField+Extensions.swift in Sources */,
 				55E7D73B29DC7E8900423770 /* EmojiCell.swift in Sources */,
-				55EAA1472A78072E00790F07 /* TrackerProvider.swift in Sources */,
 				55E7D73929DB727A00423770 /* SettingsListCells.swift in Sources */,
 				55DD0B1629CF19E40028FCDE /* AppDelegate.swift in Sources */,
 				55BA1BCF29F2BB05003004CB /* ColorCell.swift in Sources */,

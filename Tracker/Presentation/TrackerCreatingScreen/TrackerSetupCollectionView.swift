@@ -1,5 +1,5 @@
 //
-//  CollectionView.swift
+//  TrackerSetupCollectionView.swift
 //  Tracker
 //
 //  Created by Виктория Щербакова on 05.04.2023.
@@ -12,12 +12,15 @@ protocol CollectionViewDelegate: AnyObject {
     func didEnabledCreateButton(isEnabledCreate: Bool, isEmptyWeekDay: Bool)
 }
 
-final class CollectionView: NSObject {
+final class TrackerSetupCollectionView: NSObject {
     weak var delegate: CollectionViewDelegate?
     private var scheduleVC: ScheduleViewController?
     
     private let collection: UICollectionView
-    private let trackerProvider: TrackerProviderProtocol
+    private let trackerStore: TrackerStoreProtocol
+    
+    // NOTE: Экран создания категорий будет реализован в следующих спринтах. trackerCategoryStore будет перенесен в соответсвующие классы
+    private let trackerCategoryStore: TrackerCategoryStoreProtocol
 
     private var listSettingsItem = [String]()
     private var weekDayList: [WeekDay] = []
@@ -68,7 +71,8 @@ final class CollectionView: NSObject {
     
     init(collection: UICollectionView) {
         self.collection = collection
-        self.trackerProvider = TrackerProvider()
+        self.trackerStore = TrackerStore()
+        self.trackerCategoryStore = TrackerCategoryStore()
         super.init()
         
         collection.register(TextFieldCell.self, forCellWithReuseIdentifier: TextFieldCell.identifier)
@@ -91,23 +95,24 @@ final class CollectionView: NSObject {
     
     func createTracker() {
         let newTracker = Tracker(id: UUID.init(),
-                              name: newTrackerTitle,
-                              color: newTrackerColor,
-                              emoji: newTrackerEmoji,
-                              schedule: Set(weekDayList))
-        trackerProvider.addCategory(category.header, with: newTracker)
+                name: newTrackerTitle,
+                color: newTrackerColor,
+                emoji: newTrackerEmoji,
+                schedule: Set(weekDayList))
+        trackerCategoryStore.createCategory(category.header)
+        trackerStore.createTracker(newTracker, in: category.header)
     }
 }
 
 // MARK: - TextFieldCellDelegate
-extension CollectionView: TextFieldCellDelegate {
+extension TrackerSetupCollectionView: TextFieldCellDelegate {
     func getTitleTrecker(from textField: UITextField) {
         newTrackerTitle = textField.text ?? String()
     }
 }
 
 // MARK: - UICollectionViewDataSource
-extension CollectionView: UICollectionViewDataSource {
+extension TrackerSetupCollectionView: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int { 4 }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -219,7 +224,7 @@ extension CollectionView: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegate
-extension CollectionView: UICollectionViewDelegate {
+extension TrackerSetupCollectionView: UICollectionViewDelegate {
     
     func isCollectionFilled() -> Bool {
         for section in 0..<collection.numberOfSections {
@@ -272,7 +277,7 @@ extension CollectionView: UICollectionViewDelegate {
 }
 
 // MARK: - ScheduleViewControllerDelegate
-extension CollectionView: ScheduleViewControllerDelegate {
+extension TrackerSetupCollectionView: ScheduleViewControllerDelegate {
     func didSelectWeekDay(days: Set<WeekDay>) {
         weekDayList = days.sorted { day1, day2 in
             if day1 == .sunday {

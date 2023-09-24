@@ -27,7 +27,7 @@ private enum Constants {
 final class TrackerCreateViewController: UIViewController {
     
     private var isRegular: Bool
-    private lazy var helper = CollectionView(collection: collectionView)
+    private lazy var trackerSetupCollection = TrackerSetupCollectionView(collection: collectionView)
     
     private lazy var collectionView = {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: getCollectionLayout())
@@ -85,8 +85,8 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.setHidesBackButton(true, animated: false)
-        helper.delegate = self
-        helper.add(items: setSettingList())
+        trackerSetupCollection.delegate = self
+        trackerSetupCollection.add(items: setSettingList())
         hideKeyboard()
     }
     
@@ -105,7 +105,7 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     @objc private func successCreatedTracker() {
-        helper.createTracker()
+        trackerSetupCollection.createTracker()
         dismiss(animated: true)
     }
     
