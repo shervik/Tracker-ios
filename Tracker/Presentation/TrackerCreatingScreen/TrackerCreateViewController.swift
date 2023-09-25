@@ -1,5 +1,5 @@
 //
-//  TrackerSettingsViewController.swift
+//  TrackerCreateViewController.swift
 //  Tracker
 //
 //  Created by Виктория Щербакова on 31.03.2023.
@@ -15,6 +15,7 @@ private enum Constants {
     static let bottomToButton: CGFloat = isSmall ? 24 : 47
     static let topSettingsCollection: CGFloat = 24
     static let bottomSettingsCollection: CGFloat = 32
+    static let bottomEmojiCollection: CGFloat = 40
     static let cornerRadius: CGFloat = 16
     static let paddingForSeparator: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
     static let paddingForView: CGFloat = 16
@@ -25,9 +26,8 @@ private enum Constants {
 
 final class TrackerCreateViewController: UIViewController {
     
-    private let handler: (Tracker) -> Void
     private var isRegular: Bool
-    private lazy var helper = CollectionView(collection: collectionView)
+    private lazy var trackerSetupCollection = TrackerSetupCollectionView(collection: collectionView)
     
     private lazy var collectionView = {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: getCollectionLayout())
@@ -73,9 +73,8 @@ final class TrackerCreateViewController: UIViewController {
         return stackView
     }()
     
-    init(isRegular: Bool, handler: @escaping (Tracker) -> Void) {
+    init(isRegular: Bool) {
         self.isRegular = isRegular
-        self.handler = handler
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -86,8 +85,9 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.setHidesBackButton(true, animated: false)
-        helper.delegate = self
-        helper.add(items: setSettingList())
+        trackerSetupCollection.delegate = self
+        trackerSetupCollection.add(items: setSettingList())
+        hideKeyboard()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -105,8 +105,14 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     @objc private func successCreatedTracker() {
-        handler(helper.createTracker())
+        trackerSetupCollection.createTracker()
         dismiss(animated: true)
+    }
+    
+    private func hideKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tapGesture)
+        tapGesture.cancelsTouchesInView = false
     }
     
     private func setSettingList() -> Array<String> {
@@ -130,13 +136,11 @@ final class TrackerCreateViewController: UIViewController {
 
 // MARK: - CollectionViewDelegate
 extension TrackerCreateViewController: CollectionViewDelegate {
-    func didEnabledCreateButton(textField: UITextField, schedule: Set<WeekDay>) {
-        let isNotEmptySchedule = (isRegular && !schedule.isEmpty) || !isRegular
+
+    func didEnabledCreateButton(isEnabledCreate: Bool, isEmptyWeekDay: Bool) {
+        let isNotEmptySchedule = (isRegular && !isEmptyWeekDay) || !isRegular
         
-        if let text = textField.text,
-           !text.isEmpty,
-           text.count < 38,
-           isNotEmptySchedule {
+        if isEnabledCreate && isNotEmptySchedule {
             createButton.backgroundColor = .ypBlack
             createButton.isEnabled = true
         } else {
@@ -248,7 +252,7 @@ extension TrackerCreateViewController {
         section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 0,
                                                         leading: Constants.paddingForView,
-                                                        bottom: 0,
+                                                        bottom: Constants.bottomEmojiCollection,
                                                         trailing: Constants.paddingForView)
         
         return section

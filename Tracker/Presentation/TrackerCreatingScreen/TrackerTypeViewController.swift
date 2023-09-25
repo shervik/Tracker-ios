@@ -16,11 +16,11 @@ private enum Constants {
 }
 
 final class TrackerTypeViewController: UIViewController {
-    private var handler: (Tracker) -> Void
     
     private lazy var addHabitButton = {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
@@ -34,6 +34,7 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Нерегулярное событие", for: .normal)
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
         button.titleLabel?.font = Constants.buttonFont
@@ -42,8 +43,7 @@ final class TrackerTypeViewController: UIViewController {
         return button
     }()
 
-    init(handler: @escaping (Tracker) -> Void) {
-        self.handler = handler
+    init() {
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -67,13 +67,13 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     @objc private func createHabit() {
-        let vc = TrackerCreateViewController(isRegular: true, handler: handler)
+        let vc = TrackerCreateViewController(isRegular: true)
         vc.title = "Новая привычка"
         navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc private func createEvent() {
-        let vc = TrackerCreateViewController(isRegular: false, handler: handler)
+        let vc = TrackerCreateViewController(isRegular: false)
         vc.title = "Новое нерегулярное событие"
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -14,7 +14,7 @@ enum Position {
 private enum Constants {
     static let cornerRadius: CGFloat = 16
     static let cellFont: UIFont = .systemFont(ofSize: 17, weight: .regular)
-    static let paddings: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+    static let paddings: UIEdgeInsets = UIEdgeInsets(top: 15, left: 16, bottom: 14, right: 16)
     static let heightRowTable: CGFloat = 75
 }
 

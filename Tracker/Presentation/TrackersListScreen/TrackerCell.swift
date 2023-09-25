@@ -15,20 +15,21 @@ private enum Constants {
 }
 
 protocol TrackerCellDelegate: AnyObject {
-    func didCompletedTracker(_ cell: TrackerCell)
+    func didCompletedTracker(with trackerId: UUID, at indexPath: IndexPath)
+    func didUncompletedTracker(with trackerId: UUID, at indexPath: IndexPath)
     func didShowErrorForTracker()
 }
 
 final class TrackerCell: UICollectionViewCell {
     static let identifier = "TrackerCell"
     
-    private var countDays: Int = 0
+    private var isCompletedToday = false
+    private var trackerId: UUID?
+    private var indexPath: IndexPath?
     weak var delegate: TrackerCellDelegate?
-    var currentDate: Date = Date()
     
     private lazy var subview = {
         let view = UIView()
-        view.backgroundColor = .ypWhite
         view.addSubview(dayLabel)
         view.addSubview(addButton)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +48,7 @@ final class TrackerCell: UICollectionViewCell {
     
     private lazy var dayLabel = {
         let label = UILabel()
-        label.text = "\(countDays) день"
+        label.text = "0 дней"
         label.font = Constants.cellFont
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -55,8 +56,6 @@ final class TrackerCell: UICollectionViewCell {
     
     var addButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
-        button.setImage(UIImage(systemName: "checkmark"), for: .selected)
         button.tintColor = .ypWhite
         button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(didTabButton), for: .touchUpInside)
@@ -109,22 +108,30 @@ final class TrackerCell: UICollectionViewCell {
         super.init(coder: coder)
     }
     
-    func resetStateButton() {
-        addButton.isSelected = false
-        addButton.alpha = 1
+    func configure(with tracker: Tracker,
+                   isCompletedToday: Bool,
+                   at indexPath: IndexPath,
+                   completedDays: Int) {
+        self.trackerId = tracker.id
+        self.isCompletedToday = isCompletedToday
+        self.indexPath = indexPath
+        trackerTitle.text = tracker.name
+        emojiLabel.text = tracker.emoji
+        cardView.backgroundColor = tracker.color
+        addButton.backgroundColor = tracker.color
+        addButton.alpha = isCompletedToday ? 0.3 : 1
+        let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
+        addButton.setImage(image, for: .normal)
+        dayLabel.text = "\(completedDays) день"
     }
     
-    @objc private func didTabButton(_ sender: UIButton) {
-        if currentDate <= Date() {
-            addButton.isSelected = !sender.isSelected
-            
-            addButton.alpha = sender.isSelected ? 0.3 : 1
-            countDays += sender.isSelected ? 1 : -1
-            dayLabel.text = "\(countDays) день"
-            
-            delegate?.didCompletedTracker(self)
+    @objc private func didTabButton() {
+        guard let trackerId = trackerId, let indexPath = indexPath else { return }
+        
+        if isCompletedToday {
+            delegate?.didUncompletedTracker(with: trackerId, at: indexPath)
         } else {
-            delegate?.didShowErrorForTracker()
+            delegate?.didCompletedTracker(with: trackerId, at: indexPath)
         }
     }
     

@@ -8,13 +8,13 @@
 import Foundation
 
 enum WeekDay: Int, CaseIterable {
-    case sunday = 1
-    case monday
+    case monday = 2
     case tuesday
     case wednesday
     case thursday
     case friday
     case saturday
+    case sunday = 1
         
     var fullName: String {
         switch self {

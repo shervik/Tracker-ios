@@ -31,7 +31,7 @@ final class SnackbarView: UIView {
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
         ])
         
-        backgroundColor = UIColor.ypRed
+        backgroundColor = .ypRed
         layer.cornerRadius = 10
         layer.masksToBounds = true
     }
