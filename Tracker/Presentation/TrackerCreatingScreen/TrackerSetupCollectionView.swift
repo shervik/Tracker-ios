@@ -15,13 +15,10 @@ protocol CollectionViewDelegate: AnyObject {
 final class TrackerSetupCollectionView: NSObject {
     weak var delegate: CollectionViewDelegate?
     private var scheduleVC: ScheduleViewController?
+    private var categoryVC: CategoryListViewController?
     
     private let collection: UICollectionView
     private let trackerStore: TrackerStoreProtocol
-    
-    // NOTE: Экран создания категорий будет реализован в следующих спринтах. trackerCategoryStore будет перенесен в соответсвующие классы
-    private let trackerCategoryStore: TrackerCategoryStoreProtocol
-
     private var listSettingsItem = [String]()
     private var weekDayList: [WeekDay] = []
     private var newTrackerTitle = String() {
@@ -55,8 +52,7 @@ final class TrackerSetupCollectionView: NSObject {
         }
     }
     
-    private var category: TrackerCategory = TrackerCategory(header: "Чудеса единорогов",
-                                                            trackersList: [])
+    private var categoryName: String = String()
     
     private var emojiList = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                              "😇", "😡", "🥶", "🤔", "🙌", "🍔",
@@ -72,7 +68,6 @@ final class TrackerSetupCollectionView: NSObject {
     init(collection: UICollectionView) {
         self.collection = collection
         self.trackerStore = TrackerStore()
-        self.trackerCategoryStore = TrackerCategoryStore()
         super.init()
         
         collection.register(TextFieldCell.self, forCellWithReuseIdentifier: TextFieldCell.identifier)
@@ -99,8 +94,7 @@ final class TrackerSetupCollectionView: NSObject {
                 color: newTrackerColor,
                 emoji: newTrackerEmoji,
                 schedule: Set(weekDayList))
-        trackerCategoryStore.createCategory(category.header)
-        trackerStore.createTracker(newTracker, in: category.header)
+        trackerStore.createTracker(newTracker, in: categoryName)
     }
 }
 
@@ -192,7 +186,7 @@ extension TrackerSetupCollectionView: UICollectionViewDataSource {
         }
         
         if indexPath.row == 0 {
-            cell.subtitleLabel.text = category.header
+            cell.subtitleLabel.text = categoryName
         } else {
             cell.subtitleLabel.text = weekDayList.count == 7 ? "Каждый день" : weekDayList.map {
                 String($0.cutName)
@@ -240,11 +234,16 @@ extension TrackerSetupCollectionView: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
         
         switch indexPath.section {
-        case 1: if indexPath.row == 1 {
+        case 1:
+            if indexPath.row == 0 {
+                categoryVC = CategoryListViewController()
+                categoryVC?.delegate = self
+                delegate?.didOpenScreen(categoryVC ?? UIViewController())
+            } else if indexPath.row == 1 {
             scheduleVC = ScheduleViewController()
             scheduleVC?.delegate = self
             delegate?.didOpenScreen(scheduleVC ?? UIViewController())
-        }
+            }
         case 2:
             let emojiCell = cell as? EmojiCell
             newTrackerEmoji = emojiCell?.emojiLabel.text ?? String()
@@ -290,5 +289,12 @@ extension TrackerSetupCollectionView: ScheduleViewControllerDelegate {
         }
         
         collection.reloadSections(IndexSet(integer: 1))
+    }
+}
+
+extension TrackerSetupCollectionView: CategoryListViewControllerDelegate {
+    func confirmCategory(with name: String) {
+        categoryName = name
+        collection.reloadData()
     }
 }

@@ -78,18 +78,6 @@ final class TrackerStore: NSObject {
         return trackerCoreData
     }
     
-    private func getTracker(with id: UUID) -> TrackerCoreData? {
-        let fetchRequest = TrackerCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest)
-            return results.first
-        } catch {
-            return nil
-        }
-    }
-    
     private func getTracker(from trackerCoreData: TrackerCoreData) -> Tracker {
         guard let id = trackerCoreData.id,
               let name = trackerCoreData.name,

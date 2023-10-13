@@ -36,7 +36,7 @@ final class ScheduleViewController: UIViewController {
         tableView.backgroundColor = .clear
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ScheduleCell")
         tableView.separatorInset = Constants.paddingForSeparator
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -45,7 +45,7 @@ final class ScheduleViewController: UIViewController {
     private lazy var buttonDone = {
         let button = UIButton()
         button.setTitle("Готово", for: .normal)
-        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = Constants.buttonFont
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
@@ -96,7 +96,7 @@ final class ScheduleViewController: UIViewController {
             buttonDone.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.bottomToSafeArea),
             buttonDone.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.paddingForView),
             buttonDone.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.paddingForView),
-            buttonDone.heightAnchor.constraint(equalToConstant: Constants.heightButton),
+            buttonDone.heightAnchor.constraint(equalToConstant: Constants.heightButton)
         ])
     }
 }
@@ -112,7 +112,7 @@ extension ScheduleViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "ScheduleCell")
         
         let switchView = UISwitch()
         switchView.setOn(false, animated: true)
