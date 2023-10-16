@@ -7,14 +7,7 @@
 
 import UIKit
 
-//
-//  CategoryListViewController.swift
-//  Tracker
-//
-//  Created by Виктория Щербакова on 07.10.2023.
-//
-
-import UIKit
+typealias CategoryCallback = (String) -> Void
 
 private enum Constants {
     private static let isSmall = UIDevice.current.accessibilityFrame.height < 600
@@ -28,12 +21,8 @@ private enum Constants {
     static let heightInput: CGFloat = 75
 }
 
-protocol CategoryCreateViewControllerDelegate: AnyObject {
-    func didCreateCategory(with categoryName: String)
-}
-
 final class CategoryCreateViewController: UIViewController {
-    weak var delegate: CategoryCreateViewControllerDelegate?
+    var categoryCallback: CategoryCallback?
     private var categoryName: String = String()
 
     lazy var textInput = {
@@ -82,7 +71,7 @@ final class CategoryCreateViewController: UIViewController {
     }
     
     @objc private func createCategory() {
-        delegate?.didCreateCategory(with: categoryName)
+        categoryCallback?(categoryName)
         navigationController?.popViewController(animated: true)
     }
     

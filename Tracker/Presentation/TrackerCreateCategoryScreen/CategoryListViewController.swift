@@ -21,13 +21,9 @@ private enum Constants {
     static let heightRowTable: CGFloat = 75
 }
 
-protocol CategoryListViewControllerDelegate: AnyObject {
-    func confirmCategory(with name: String)
-}
-
 final class CategoryListViewController: UIViewController {
-    weak var delegate: CategoryListViewControllerDelegate?
-    private lazy var trackerCategoryStore: TrackerCategoryStoreProtocol = TrackerCategoryStore()
+    private var viewModel: CategoryListViewModelProtocol?
+    private var trackerCategories: [TrackerCategory]?
 
     private lazy var tableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -72,11 +68,21 @@ final class CategoryListViewController: UIViewController {
         return imageView
     }()
     
+    init(delegate: CategoryListViewControllerDelegate) {
+        super.init(nibName: nil, bundle: nil)
+        viewModel = CategoryListViewModel()
+        self.viewModel?.delegate = delegate
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Категория"
         navigationItem.setHidesBackButton(true, animated: false)
-        trackerCategoryStore.delegate = self
+        bind()
         updateVisability()
     }
     
@@ -92,9 +98,21 @@ final class CategoryListViewController: UIViewController {
         setupConstraint()
     }
     
+    private func bind() {
+        guard let viewModel = viewModel else { return }
+        
+        viewModel.updateHandler = { [weak self] in
+            self?.trackerCategories = viewModel.trackerCategory
+            self?.updateVisability()
+        }
+    }
+    
     @objc private func addCategory() {
         let categoryCreateVC = CategoryCreateViewController()
-        categoryCreateVC.delegate = self
+        categoryCreateVC.categoryCallback = { [weak self] categoryName in
+            self?.viewModel?.createCategory(with: categoryName)
+            self?.updateVisability()
+        }
         navigationController?.pushViewController(categoryCreateVC, animated: true)
     }
     
@@ -119,7 +137,7 @@ final class CategoryListViewController: UIViewController {
     }
     
     private func updateVisability() {
-        let isListCategoryVisible = trackerCategoryStore.numberOfRows() != 0
+        guard let isListCategoryVisible = viewModel?.isListCategoryVisible else { return }
         
         errorImage.isHidden = isListCategoryVisible
         errorTitle.isHidden = isListCategoryVisible
@@ -134,8 +152,7 @@ final class CategoryListViewController: UIViewController {
 extension CategoryListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.cellForRow(at: indexPath as IndexPath)?.accessoryType = .checkmark
-        guard let nameOfCategory = trackerCategoryStore.object(at: indexPath)?.header else { return }
-        delegate?.confirmCategory(with: nameOfCategory)
+        viewModel?.chooseCategory(at: indexPath)
         navigationController?.popViewController(animated: true)
     }
 
@@ -149,7 +166,7 @@ extension CategoryListViewController: UITableViewDelegate {
 extension CategoryListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return trackerCategoryStore.numberOfRows()
+        return viewModel?.numberOfRows ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -157,39 +174,12 @@ extension CategoryListViewController: UITableViewDataSource {
 
         cell.selectionStyle = .none
         cell.textLabel?.font = Constants.cellFont
-        cell.textLabel?.text = trackerCategoryStore.object(at: indexPath)?.header
+        cell.textLabel?.text = viewModel?.getName(at: indexPath)
         cell.backgroundColor = .ypBackground
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return Constants.heightRowTable
-    }
-}
-
-// MARK: - CategoryCreateViewControllerDelegate
-extension CategoryListViewController: CategoryCreateViewControllerDelegate {
-    
-    func didCreateCategory(with categoryName: String) {
-        trackerCategoryStore.createCategory(categoryName)
-        updateVisability()
-    }
-}
-
-// MARK: - TrackerCategoryStoreDelegate
-extension CategoryListViewController: TrackerCategoryStoreDelegate {
-
-    func didUpdate(_ update: TrackerCategoryStoreUpdate) {
-        tableView.performBatchUpdates {
-            tableView.insertRows(at: update.insertedIndexPaths, with: .automatic)
-            tableView.deleteRows(at: update.deletedIndexPaths, with: .automatic)
-        } completion: { _ in
-            if let indexPathToScroll = update.insertedIndexPaths.last {
-                self.tableView.scrollToRow(at: indexPathToScroll,
-                                           at: .bottom,
-                                           animated: true)
-            }
-        }
-        updateVisability()
     }
 }

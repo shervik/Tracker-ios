@@ -236,8 +236,7 @@ extension TrackerSetupCollectionView: UICollectionViewDelegate {
         switch indexPath.section {
         case 1:
             if indexPath.row == 0 {
-                categoryVC = CategoryListViewController()
-                categoryVC?.delegate = self
+                categoryVC = CategoryListViewController(delegate: self)
                 delegate?.didOpenScreen(categoryVC ?? UIViewController())
             } else if indexPath.row == 1 {
             scheduleVC = ScheduleViewController()

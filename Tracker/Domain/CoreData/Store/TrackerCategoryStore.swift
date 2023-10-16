@@ -14,14 +14,15 @@ struct TrackerCategoryStoreUpdate {
 }
 
 protocol TrackerCategoryStoreDelegate: AnyObject {
-    func didUpdate(_ update: TrackerCategoryStoreUpdate)
+    func didUpdateCategories()
 }
 
 protocol TrackerCategoryStoreProtocol {
     var delegate: TrackerCategoryStoreDelegate? { get set }
+    var numberOfRows: Int { get }
+    var categories: [TrackerCategory] { get }
     func createCategory(_ name: String)
     func object(at indexPath: IndexPath) -> TrackerCategory?
-    func numberOfRows() -> Int
 }
 
 final class TrackerCategoryStore: NSObject {
@@ -63,8 +64,14 @@ final class TrackerCategoryStore: NSObject {
 
 // MARK: - TrackerCategoryStoreProtocol
 extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
-
-    func numberOfRows() -> Int {
+ 
+    var categories: [TrackerCategory] {
+        fetchedResultsController.fetchedObjects?.map { trackerCategory in
+            getTrackerCategory(from: trackerCategory)
+        } ?? []
+    }
+    
+    var numberOfRows: Int {
         fetchedResultsController.sections?[0].numberOfObjects ?? 0
     }
     
@@ -101,31 +108,6 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.didUpdate(TrackerCategoryStoreUpdate(
-            insertedIndexPaths: insertedIndexPaths,
-            deletedIndexPaths: deletedIndexPaths))
-        
-        insertedIndexPaths = []
-        deletedIndexPaths = []
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                    didChange anObject: Any,
-                    at indexPath: IndexPath?,
-                    for type: NSFetchedResultsChangeType,
-                    newIndexPath: IndexPath?) {
-        
-        switch type {
-        case .insert:
-            if let newIndexPath = newIndexPath {
-                insertedIndexPaths.append(newIndexPath)
-            }
-        case .delete:
-            if let indexPath = indexPath {
-                deletedIndexPaths.append(indexPath)
-            }
-        default:
-            break
-        }
+        delegate?.didUpdateCategories()
     }
 }
