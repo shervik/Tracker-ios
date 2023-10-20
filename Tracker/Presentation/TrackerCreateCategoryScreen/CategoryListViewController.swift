@@ -23,7 +23,6 @@ private enum Constants {
 
 final class CategoryListViewController: UIViewController {
     private var viewModel: CategoryListViewModelProtocol?
-    private var trackerCategories: [TrackerCategory]?
 
     private lazy var tableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -70,8 +69,8 @@ final class CategoryListViewController: UIViewController {
     
     init(delegate: CategoryListViewControllerDelegate) {
         super.init(nibName: nil, bundle: nil)
-        viewModel = CategoryListViewModel()
-        self.viewModel?.delegate = delegate
+        viewModel = CategoryListViewModel(trackerCategoryStore: TrackerCategoryStore())
+        viewModel?.delegate = delegate
     }
     
     required init?(coder: NSCoder) {
@@ -101,8 +100,7 @@ final class CategoryListViewController: UIViewController {
     private func bind() {
         guard let viewModel = viewModel else { return }
         
-        viewModel.updateHandler = { [weak self] in
-            self?.trackerCategories = viewModel.trackerCategory
+        viewModel.categoriesDidChange = { [weak self] in
             self?.updateVisability()
         }
     }
@@ -144,7 +142,6 @@ final class CategoryListViewController: UIViewController {
         tableView.isHidden = !isListCategoryVisible
         
         tableView.reloadData()
-
     }
 }
 
@@ -166,7 +163,7 @@ extension CategoryListViewController: UITableViewDelegate {
 extension CategoryListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.numberOfRows ?? 0
+        return viewModel?.trackerCategory.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -174,8 +171,9 @@ extension CategoryListViewController: UITableViewDataSource {
 
         cell.selectionStyle = .none
         cell.textLabel?.font = Constants.cellFont
-        cell.textLabel?.text = viewModel?.getName(at: indexPath)
+        cell.textLabel?.text = viewModel?.trackerCategory[indexPath.row].header
         cell.backgroundColor = .ypBackground
+        
         return cell
     }
     

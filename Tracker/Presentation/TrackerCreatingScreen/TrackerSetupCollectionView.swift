@@ -239,9 +239,9 @@ extension TrackerSetupCollectionView: UICollectionViewDelegate {
                 categoryVC = CategoryListViewController(delegate: self)
                 delegate?.didOpenScreen(categoryVC ?? UIViewController())
             } else if indexPath.row == 1 {
-            scheduleVC = ScheduleViewController()
-            scheduleVC?.delegate = self
-            delegate?.didOpenScreen(scheduleVC ?? UIViewController())
+                scheduleVC = ScheduleViewController()
+                scheduleVC?.delegate = self
+                delegate?.didOpenScreen(scheduleVC ?? UIViewController())
             }
         case 2:
             let emojiCell = cell as? EmojiCell

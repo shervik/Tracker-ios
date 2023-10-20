@@ -14,28 +14,26 @@ protocol CategoryListViewControllerDelegate: AnyObject {
 protocol CategoryListViewModelProtocol: AnyObject {
     var delegate: CategoryListViewControllerDelegate? { get set }
     var trackerCategory: [TrackerCategory] { get }
-    var updateHandler: (() -> Void)? { get set }
-    var numberOfRows: Int { get }
+    var categoriesDidChange: (() -> Void)? { get set }
     var isListCategoryVisible: Bool { get }
-    func getName(at indexPath: IndexPath) -> String?
     func createCategory(with categoryName: String)
     func chooseCategory(at indexPath: IndexPath)
 }
 
 final class CategoryListViewModel {
     weak var delegate: CategoryListViewControllerDelegate?
-    var updateHandler: (() -> Void)?
+    var categoriesDidChange: (() -> Void)?
     private var trackerCategoryStore: TrackerCategoryStoreProtocol
     
     private(set) var trackerCategory: [TrackerCategory] = [] {
         didSet {
-            updateHandler?()
+            categoriesDidChange?()
         }
     }
     
-    init() {
-        trackerCategoryStore = TrackerCategoryStore()
-        trackerCategoryStore.delegate = self
+    init(trackerCategoryStore: TrackerCategoryStoreProtocol) {
+        self.trackerCategoryStore = trackerCategoryStore
+        self.trackerCategoryStore.delegate = self
         didUpdateCategories()
     }
 }
@@ -43,21 +41,12 @@ final class CategoryListViewModel {
 extension CategoryListViewModel: CategoryListViewModelProtocol {
     
     func chooseCategory(at indexPath: IndexPath) {
-        if let nameCategory = getName(at: indexPath){
-            delegate?.confirmCategory(with: nameCategory)
-        }
-    }
-    
-    var numberOfRows: Int {
-        trackerCategoryStore.numberOfRows
+        let nameCategory = trackerCategory[indexPath.row].header
+        delegate?.confirmCategory(with: nameCategory)
     }
     
     var isListCategoryVisible: Bool {
-        trackerCategoryStore.numberOfRows != 0
-    }
-    
-    func getName(at indexPath: IndexPath) -> String? {
-        trackerCategoryStore.object(at: indexPath)?.header
+        trackerCategory.count != 0
     }
     
     func createCategory(with categoryName: String) {
