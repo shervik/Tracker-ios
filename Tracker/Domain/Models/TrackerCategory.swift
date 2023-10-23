@@ -10,4 +10,5 @@ import Foundation
 struct TrackerCategory {
     let header: String
     let trackersList: [Tracker]
+    let isSelected: Bool
 }

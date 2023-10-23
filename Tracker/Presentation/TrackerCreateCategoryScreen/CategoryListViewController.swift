@@ -16,7 +16,6 @@ private enum Constants {
     static let paddingForSeparator: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
     static let paddingForView: CGFloat = 16
     static let buttonFont: UIFont = .systemFont(ofSize: 16, weight: .medium)
-    static let cellFont: UIFont = .systemFont(ofSize: 17, weight: .regular)
     static let heightButton: CGFloat = 60
     static let heightRowTable: CGFloat = 75
 }
@@ -29,7 +28,7 @@ final class CategoryListViewController: UIViewController {
         tableView.backgroundColor = .clear
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "TrackerCategoryCell")
+        tableView.register(TrackerCategoryCell.self, forCellReuseIdentifier: TrackerCategoryCell.identifier)
         tableView.separatorInset = Constants.paddingForSeparator
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -69,7 +68,9 @@ final class CategoryListViewController: UIViewController {
     
     init(delegate: CategoryListViewControllerDelegate) {
         super.init(nibName: nil, bundle: nil)
-        viewModel = CategoryListViewModel(trackerCategoryStore: TrackerCategoryStore())
+        let store = TrackerCategoryStore()
+        viewModel = CategoryListViewModel(trackerCategoryStore: store)
+        store.delegate = self.viewModel as? TrackerCategoryStoreDelegate
         viewModel?.delegate = delegate
     }
     
@@ -148,14 +149,8 @@ final class CategoryListViewController: UIViewController {
 // MARK: - UITableViewDelegate
 extension CategoryListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.cellForRow(at: indexPath as IndexPath)?.accessoryType = .checkmark
         viewModel?.chooseCategory(at: indexPath)
         navigationController?.popViewController(animated: true)
-    }
-
-
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        tableView.cellForRow(at: indexPath as IndexPath)?.accessoryType = .none
     }
 }
 
@@ -167,13 +162,13 @@ extension CategoryListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: "TrackerCategoryCell")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TrackerCategoryCell.identifier,
+                                                       for: indexPath) as? TrackerCategoryCell,
+              let category = viewModel?.trackerCategory[indexPath.row]
+        else { return UITableViewCell() }
 
-        cell.selectionStyle = .none
-        cell.textLabel?.font = Constants.cellFont
-        cell.textLabel?.text = viewModel?.trackerCategory[indexPath.row].header
-        cell.backgroundColor = .ypBackground
-        
+        cell.nameCategory.text = category.header
+        cell.isSelectedState = category.isSelected
         return cell
     }
     

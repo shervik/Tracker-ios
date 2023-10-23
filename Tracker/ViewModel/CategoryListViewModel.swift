@@ -33,15 +33,19 @@ final class CategoryListViewModel {
     
     init(trackerCategoryStore: TrackerCategoryStoreProtocol) {
         self.trackerCategoryStore = trackerCategoryStore
-        self.trackerCategoryStore.delegate = self
         didUpdateCategories()
+    }
+    
+    private func selectCategory(at indexPath: IndexPath) {
+        trackerCategoryStore.setSelectedCategory(at: indexPath)
     }
 }
 
 extension CategoryListViewModel: CategoryListViewModelProtocol {
-    
+ 
     func chooseCategory(at indexPath: IndexPath) {
         let nameCategory = trackerCategory[indexPath.row].header
+        selectCategory(at: indexPath)
         delegate?.confirmCategory(with: nameCategory)
     }
     

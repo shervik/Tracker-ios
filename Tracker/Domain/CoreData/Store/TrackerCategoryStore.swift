@@ -18,11 +18,11 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
 }
 
 protocol TrackerCategoryStoreProtocol {
-    var delegate: TrackerCategoryStoreDelegate? { get set }
     var numberOfRows: Int { get }
     var categories: [TrackerCategory] { get }
     func createCategory(_ name: String)
     func object(at indexPath: IndexPath) -> TrackerCategory?
+    func setSelectedCategory(at indexPath: IndexPath)
 }
 
 final class TrackerCategoryStore: NSObject {
@@ -58,7 +58,13 @@ final class TrackerCategoryStore: NSObject {
     
     private func getTrackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {
         guard let header = trackerCategoryCoreData.header else { preconditionFailure("Failed to load data") }
-        return TrackerCategory(header: header, trackersList: [])
+        return TrackerCategory(header: header, trackersList: [], isSelected: trackerCategoryCoreData.isSelected)
+    }
+    
+    private func unselectCategory() {
+        guard let previousSelectedCategory = fetchedResultsController.fetchedObjects?.first(where: { $0.isSelected })
+        else { return }
+        previousSelectedCategory.isSelected = false
     }
 }
 
@@ -84,6 +90,16 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         fetchedResultsController.object(at: indexPath).header
     }
 
+    func setSelectedCategory(at indexPath: IndexPath) {
+        do {
+            unselectCategory()
+            fetchedResultsController.object(at: indexPath).isSelected = true
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error fetching or saving TrackerCategoryCoreData: \(error)")
+        }
+    }
+    
     func createCategory(_ name: String) {
         let fetchRequest = fetchedResultsController.fetchRequest
         fetchRequest.predicate = NSPredicate(format: "%K == %@",
@@ -96,6 +112,7 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
             if result.isEmpty {
                 let newCategory = TrackerCategoryCoreData(context: managedContext)
                 newCategory.header = name
+                newCategory.isSelected = false
                 try managedContext.save()
             }
         } catch {
