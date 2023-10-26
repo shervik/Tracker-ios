@@ -32,12 +32,12 @@ final class TabBarController: UITabBarController {
         statisticVC.configure(statisticPresenter)
         
 
-        let iconTrackers = UITabBarItem(title: "Трекеры",
+        let iconTrackers = UITabBarItem(title: L10n.TrackerVC.title,
                                         image: UIImage(systemName: "record.circle.fill"),
                                         tag: 0
         )
         
-        let iconStatistic = UITabBarItem(title: "Статистика",
+        let iconStatistic = UITabBarItem(title: L10n.StaticticVC.title,
                                          image: UIImage(systemName: "hare.fill"),
                                          tag: 1
         )

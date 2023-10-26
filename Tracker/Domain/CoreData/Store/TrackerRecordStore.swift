@@ -9,6 +9,7 @@ import CoreData
 import UIKit
 
 protocol TrackerRecordStoreProtocol {
+    var allCountRecord: Int { get }
     func updateRecord(_ record: TrackerRecord, date: Date)
     func getCountRecords(for id: UUID) -> Int
     func isTrackerCompleted(_ id: UUID, with date: Date) -> Bool
@@ -31,6 +32,16 @@ final class TrackerRecordStore: NSObject {
 
 // MARK: - TrackerRecordStoreProtocol
 extension TrackerRecordStore: TrackerRecordStoreProtocol {
+    
+    var allCountRecord: Int {
+        let fetchRequest = TrackerRecordCoreData.fetchRequest()
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            return results.count
+        } catch {
+            preconditionFailure("Error fetching TrackerRecordCoreData: \(error)")
+        }
+    }
     
     func updateRecord(_ record: TrackerRecord, date: Date) {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
@@ -79,6 +90,5 @@ extension TrackerRecordStore: TrackerRecordStoreProtocol {
         } catch {
             preconditionFailure("Error fetching TrackerRecordCoreData: \(error)")
         }
-        
     }
 }

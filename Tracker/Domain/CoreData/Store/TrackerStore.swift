@@ -30,6 +30,10 @@ protocol TrackerStoreProtocol: AnyObject {
     func object(at indexPath: IndexPath) -> Tracker?
     func name(of section: Int) -> String?
     func searchForTracker(by text: String?)
+    func deleteTracker(at indexPath: IndexPath)
+    func pinTracker(at indexPath: IndexPath)
+    func unpinTracker(at indexPath: IndexPath)
+    func checkTrackerIsPinned(at indexPath: IndexPath) -> Bool
 }
 
 final class TrackerStore: NSObject {
@@ -91,6 +95,12 @@ final class TrackerStore: NSObject {
                        emoji: emoji,
                        schedule: uiScheduleMarshalling.convertToWeekday(schedule))
     }
+    
+    private func getCategoryCoreData(for categoryName: String) -> TrackerCategoryCoreData? {
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "header == %@", categoryName)
+        return try? managedContext.fetch(fetchRequest).first
+    }
 }
 
 // MARK: - TrackerStoreProtocol
@@ -133,6 +143,57 @@ extension TrackerStore: TrackerStoreProtocol {
         } catch {
             preconditionFailure("Error create tracker: \(error)")
         }
+    }
+    
+    func deleteTracker(at indexPath: IndexPath) {
+        do {
+            let trackerCoreData = fetchedResultsController.object(at: indexPath)
+            managedContext.delete(trackerCoreData)
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error create tracker: \(error)")
+        }
+    }
+    
+    func pinTracker(at indexPath: IndexPath) {
+        do {
+            let trackerCoreData = fetchedResultsController.object(at: indexPath)
+            let trackerCategoryCoreData: TrackerCategoryCoreData
+            if let existingCategoryCoreData = getCategoryCoreData(for: "Закрепленные") {
+                trackerCategoryCoreData = existingCategoryCoreData
+            } else {
+                trackerCategoryCoreData = TrackerCategoryCoreData(context: managedContext)
+                trackerCategoryCoreData.header = "Закрепленные"
+                trackerCategoryCoreData.isSelected = false
+            }
+            trackerCoreData.category = trackerCategoryCoreData
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error pin tracker: \(error)")
+        }
+    }
+    
+    func unpinTracker(at indexPath: IndexPath) {
+        do {
+            let trackerCoreData = fetchedResultsController.object(at: indexPath)
+            let trackerCategoryCoreData: TrackerCategoryCoreData
+            if let existingCategoryCoreData = getCategoryCoreData(for: "Незакрепленные") {
+                trackerCategoryCoreData = existingCategoryCoreData
+            } else {
+                trackerCategoryCoreData = TrackerCategoryCoreData(context: managedContext)
+                trackerCategoryCoreData.header = "Незакрепленные"
+                trackerCategoryCoreData.isSelected = false
+            }
+            trackerCoreData.category = trackerCategoryCoreData
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error unpin tracker: \(error)")
+        }
+    }
+
+    func checkTrackerIsPinned(at indexPath: IndexPath) -> Bool {
+        let trackerCoreData = fetchedResultsController.object(at: indexPath)
+        return trackerCoreData.category?.header == "Закрепленные" ? true : false
     }
 }
 
