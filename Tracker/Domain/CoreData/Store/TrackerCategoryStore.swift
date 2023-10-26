@@ -8,12 +8,42 @@
 import CoreData
 import UIKit
 
-protocol TrackerCategoryStoreProtocol {
-    func createCategory(_ name: String)
+struct TrackerCategoryStoreUpdate {
+    let insertedIndexPaths: [IndexPath]
+    let deletedIndexPaths: [IndexPath]
 }
 
-final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
+protocol TrackerCategoryStoreDelegate: AnyObject {
+    func didUpdateCategories()
+}
+
+protocol TrackerCategoryStoreProtocol {
+    var numberOfRows: Int { get }
+    var categories: [TrackerCategory] { get }
+    func createCategory(_ name: String)
+    func object(at indexPath: IndexPath) -> TrackerCategory?
+    func setSelectedCategory(at indexPath: IndexPath)
+}
+
+final class TrackerCategoryStore: NSObject {
     private let managedContext: NSManagedObjectContext
+    weak var delegate: TrackerCategoryStoreDelegate?
+    
+    private lazy var insertedIndexPaths: [IndexPath] = []
+    private lazy var deletedIndexPaths: [IndexPath] = []
+    
+    private lazy var fetchedResultsController = {
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "header", ascending: true)]
+        
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                                  managedObjectContext: self.managedContext,
+                                                                  sectionNameKeyPath: nil,
+                                                                  cacheName: nil)
+        fetchedResultsController.delegate = self
+        try? fetchedResultsController.performFetch()
+        return fetchedResultsController
+    }()
     
     init(context: NSManagedObjectContext) {
         self.managedContext = context
@@ -26,8 +56,52 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
         self.init(context: appDelegate.persistentContainer.viewContext)
     }
     
+    private func getTrackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {
+        guard let header = trackerCategoryCoreData.header else { preconditionFailure("Failed to load data") }
+        return TrackerCategory(header: header, trackersList: [], isSelected: trackerCategoryCoreData.isSelected)
+    }
+    
+    private func unselectCategory() {
+        guard let previousSelectedCategory = fetchedResultsController.fetchedObjects?.first(where: { $0.isSelected })
+        else { return }
+        previousSelectedCategory.isSelected = false
+    }
+}
+
+// MARK: - TrackerCategoryStoreProtocol
+extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
+ 
+    var categories: [TrackerCategory] {
+        fetchedResultsController.fetchedObjects?.map { trackerCategory in
+            getTrackerCategory(from: trackerCategory)
+        } ?? []
+    }
+    
+    var numberOfRows: Int {
+        fetchedResultsController.sections?[0].numberOfObjects ?? 0
+    }
+    
+    func object(at indexPath: IndexPath) -> TrackerCategory? {
+        let trackerCategoryCoreData = fetchedResultsController.object(at: indexPath)
+        return getTrackerCategory(from: trackerCategoryCoreData)
+    }
+    
+    func getCategory(at indexPath: IndexPath) -> String? {
+        fetchedResultsController.object(at: indexPath).header
+    }
+
+    func setSelectedCategory(at indexPath: IndexPath) {
+        do {
+            unselectCategory()
+            fetchedResultsController.object(at: indexPath).isSelected = true
+            try managedContext.save()
+        } catch {
+            preconditionFailure("Error fetching or saving TrackerCategoryCoreData: \(error)")
+        }
+    }
+    
     func createCategory(_ name: String) {
-        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        let fetchRequest = fetchedResultsController.fetchRequest
         fetchRequest.predicate = NSPredicate(format: "%K == %@",
                                              #keyPath(TrackerCategoryCoreData.header),
                                              name)
@@ -38,10 +112,19 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
             if result.isEmpty {
                 let newCategory = TrackerCategoryCoreData(context: managedContext)
                 newCategory.header = name
+                newCategory.isSelected = false
                 try managedContext.save()
             }
         } catch {
             preconditionFailure("Error fetching or saving TrackerCategoryCoreData: \(error)")
         }
+    }
+}
+
+// MARK: - NSFetchedResultsControllerDelegate
+extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.didUpdateCategories()
     }
 }

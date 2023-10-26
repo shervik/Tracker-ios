@@ -38,7 +38,7 @@ final class TrackerCreateViewController: UIViewController {
     private lazy var cancelButton = {
         let button = UIButton()
         button.setTitle("Отменить", for: .normal)
-        button.setTitleColor(UIColor.ypRed, for: .normal)
+        button.setTitleColor(.ypRed, for: .normal)
         button.titleLabel?.font = Constants.buttonFont
         button.layer.cornerRadius = Constants.cornerRadius
         button.layer.masksToBounds = true
@@ -51,7 +51,7 @@ final class TrackerCreateViewController: UIViewController {
     private lazy var createButton = {
         let button = UIButton()
         button.setTitle("Создать", for: .normal)
-        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypGray
         button.isEnabled = false
         button.titleLabel?.font = Constants.buttonFont

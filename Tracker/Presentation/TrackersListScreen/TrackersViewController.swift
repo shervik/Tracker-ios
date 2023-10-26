@@ -92,13 +92,13 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Трекеры"
         trackerStore.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         view.backgroundColor = .ypWhite
-        title = "Трекеры"
         
         view.addSubview(trackerCollection)
         view.addSubview(navigationBar)

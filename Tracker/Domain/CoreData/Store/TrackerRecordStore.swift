@@ -14,9 +14,9 @@ protocol TrackerRecordStoreProtocol {
     func isTrackerCompleted(_ id: UUID, with date: Date) -> Bool
 }
 
-final class TrackerRecordStore: NSObject, TrackerRecordStoreProtocol {
+final class TrackerRecordStore: NSObject {
     private let managedContext: NSManagedObjectContext
-
+    
     init(context: NSManagedObjectContext) {
         self.managedContext = context
     }
@@ -27,7 +27,10 @@ final class TrackerRecordStore: NSObject, TrackerRecordStoreProtocol {
         }
         self.init(context: appDelegate.persistentContainer.viewContext)
     }
-    
+}
+
+// MARK: - TrackerRecordStoreProtocol
+extension TrackerRecordStore: TrackerRecordStoreProtocol {
     
     func updateRecord(_ record: TrackerRecord, date: Date) {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
