@@ -7,3 +7,4 @@ DerivedData/
 Pods/
 *.xcworkspace
 *.xcodeproj/*
+Podfile.lock
