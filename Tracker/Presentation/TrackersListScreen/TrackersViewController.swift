@@ -181,15 +181,26 @@ final class TrackersViewController: UIViewController {
     }
     
     private func pinUnpinActionForTracker(at indexPath: IndexPath) {
-        if trackerStore.checkTrackerIsPinned(at: indexPath) {
-            trackerStore.unpinTracker(at: indexPath)
-        } else {
-            trackerStore.pinTracker(at: indexPath)
-        }
+        trackerStore.toggleTrackerPin(at: indexPath)
+        changeVisible()
     }
     
     private func titleForActionPin(at indexPath: IndexPath) -> String {
-        trackerStore.checkTrackerIsPinned(at: indexPath) ? L10n.unpin : L10n.pin
+        if ((trackerStore.object(at: indexPath)?.isPin) != nil) { L10n.pin } else { L10n.unpin }
+    }
+    
+    private func editTracker(at indexPath: IndexPath) {
+        self.analyticsService.report(event: "click", params: ["screen" : "main", "item" : "edit"])
+          
+        let vc = TrackerEditViewController()
+        
+        vc.modalPresentationStyle = .automatic
+        present(vc, animated: true)
+    }
+    
+    private func editTracker(at indexPath: IndexPath, newTracker: Tracker, newCategoryName: String) {
+        trackerStore.edit(at: indexPath, to: newTracker, in: newCategoryName)
+        changeVisible()
     }
 }
 
@@ -259,7 +270,7 @@ extension TrackersViewController: UICollectionViewDataSource {
                     self.pinUnpinActionForTracker(at: indexPath)
                 },
                 UIAction(title: L10n.edit) { _ in
-                    // TODO: Редактирование
+                    self.editTracker(at: indexPath)
                 },
                 UIAction(title: L10n.delete, attributes: .destructive) { _ in
                     self.deleteTracker(at: indexPath)
