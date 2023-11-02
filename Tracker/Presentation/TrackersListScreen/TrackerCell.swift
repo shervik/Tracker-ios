@@ -48,7 +48,7 @@ final class TrackerCell: UICollectionViewCell {
     
     private lazy var dayLabel = {
         let label = UILabel()
-        label.text = "0 дней"
+        label.text = L10n.daysOfCompletedTracker(0)
         label.font = Constants.cellFont
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -122,7 +122,7 @@ final class TrackerCell: UICollectionViewCell {
         addButton.alpha = isCompletedToday ? 0.3 : 1
         let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
         addButton.setImage(image, for: .normal)
-        dayLabel.text = "\(completedDays) день"
+        dayLabel.text = L10n.daysOfCompletedTracker(completedDays)
     }
     
     @objc private func didTabButton() {

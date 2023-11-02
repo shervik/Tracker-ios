@@ -18,18 +18,18 @@ final class OnboardingViewController: UIPageViewController {
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
         
-        pageControl.currentPageIndicatorTintColor = .ypBlack
-        pageControl.pageIndicatorTintColor = .ypGray
+        pageControl.currentPageIndicatorTintColor = .black
+        pageControl.pageIndicatorTintColor = .gray
         
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
 
     private lazy var pages: [UIViewController] = {
-        let redOnboarding = OnboardingPageViewController(onboardingText: "Отслеживайте только то, что хотите",
+        let redOnboarding = OnboardingPageViewController(onboardingText: L10n.Onboarding.view1,
                                                          imageName: "Onboarding1")
         
-        let blueOnboarding = OnboardingPageViewController(onboardingText: "Даже если это не литры воды и йога",
+        let blueOnboarding = OnboardingPageViewController(onboardingText: L10n.Onboarding.view2,
                                                           imageName: "Onboarding2")
         
         

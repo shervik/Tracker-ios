@@ -9,12 +9,12 @@ import UIKit
 
 final class TrackerCategoryCell: UITableViewCell {
     static let identifier = "TrackerCategoryCell"
-
+    
     var isSelectedState: Bool = false {
-            didSet {
-                accessoryType = isSelectedState ? .checkmark : .none
-            }
+        didSet {
+            accessoryType = isSelectedState ? .checkmark : .none
         }
+    }
     
     lazy var nameCategory = {
         let label = UILabel()

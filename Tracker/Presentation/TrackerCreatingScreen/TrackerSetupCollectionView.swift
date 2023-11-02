@@ -90,10 +90,11 @@ final class TrackerSetupCollectionView: NSObject {
     
     func createTracker() {
         let newTracker = Tracker(id: UUID.init(),
-                name: newTrackerTitle,
-                color: newTrackerColor,
-                emoji: newTrackerEmoji,
-                schedule: Set(weekDayList))
+                                 name: newTrackerTitle,
+                                 color: newTrackerColor,
+                                 emoji: newTrackerEmoji,
+                                 schedule: Set(weekDayList),
+                                 isPin: false)
         trackerStore.createTracker(newTracker, in: categoryName)
     }
 }

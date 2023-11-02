@@ -1,0 +1,30 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Виктория Щербакова on 26.10.2023.
+  
+*/
+
+"delete" = "Удалить";
+"cancel" = "Отменить";
+"edit" = "Редактировать";
+"unpin" = "Открепить";
+"pin" = "Закрепить";
+"search" = "Поиск";
+
+"TrackerVC.title" = "Трекеры";
+"TrackerVC.errorTitle" = "Что будем отслеживать?";
+"delete.confirmation" = "Уверены что хотите удалить трекер?";
+"TrackerVC.errorAlert" = "Нельзя отметить трекер для будущей даты";
+
+"Onboarding.view1" = "Отслеживайте только то, что хотите";
+"Onboarding.view2" = "Даже если это не литры воды и йога";
+"Onboarding.button" = "Вот это технологии!";
+
+"StaticticVC.title" = "Статистика";
+"StaticticVC.errorTitle" = "Анализировать пока нечего";
+"StaticticVC.titleCell" = "Трекеров завершено";
+
+
+

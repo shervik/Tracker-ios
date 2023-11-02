@@ -32,7 +32,7 @@ final class OnboardingPageViewController: UIViewController {
     private lazy var onboardingLabel: UILabel = {
         let label = UILabel()
         label.text = onboardingText
-        label.textColor = .ypBlack
+        label.textColor = .black
         label.font = Constants.labelFont
         label.textAlignment = .center
         label.numberOfLines = 3
@@ -42,9 +42,9 @@ final class OnboardingPageViewController: UIViewController {
     
     private lazy var closeButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Вот это технологии!", for: .normal)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitle(L10n.Onboarding.button, for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .black
         button.layer.cornerRadius = Constants.cornerRadius
         button.titleLabel?.font = Constants.buttonFont
         button.addTarget(self, action: #selector(navigateToTabBarController), for: .touchUpInside)

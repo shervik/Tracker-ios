@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import YandexMobileMetrica
 
 final class TrackersViewController: UIViewController {
     private var presenter: TrackersPresenterProtocol?
     private lazy var trackerStore: TrackerStoreProtocol = TrackerStore()
     private lazy var trackerRecordStore: TrackerRecordStoreProtocol = TrackerRecordStore()
-    
+    private let analyticsService = AnalyticsService()
+
     private lazy var currentDate = Date().startOfDay
     
     private lazy var navigationBar: UINavigationBar = {
@@ -54,7 +56,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var searchController = {
         let search = UISearchController(searchResultsController: nil)
-        search.searchBar.placeholder = "Поиск"
+        search.searchBar.placeholder = L10n.search
         search.searchResultsUpdater = self
         search.searchBar.searchBarStyle = .minimal
         definesPresentationContext = true
@@ -66,7 +68,7 @@ final class TrackersViewController: UIViewController {
         var calendar = Calendar(identifier: .gregorian)
         calendar.firstWeekday = 2
         datePicker.calendar = calendar
-        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.locale = Locale.current
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.addTarget(self, action: #selector(datePickerChanged(_:)), for: .valueChanged)
@@ -75,7 +77,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var errorTitle = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = L10n.TrackerVC.errorTitle
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +94,7 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Трекеры"
+        title = L10n.TrackerVC.title
         trackerStore.delegate = self
     }
     
@@ -107,6 +109,13 @@ final class TrackersViewController: UIViewController {
         
         changeVisible()
         configureConstraint()
+        
+        analyticsService.report(event: "open", params: ["screen" : "main"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        analyticsService.report(event: "close", params: ["screen" : "main"])
     }
     
     func configure(_ presenter: TrackersPresenterProtocol) {
@@ -133,6 +142,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc func addTracker() {
+        analyticsService.report(event: "click", params: ["screen" : "main", "item" : "add_track"])
         let vc = UINavigationController(rootViewController: TrackerTypeViewController())
         present(vc, animated: true)
     }
@@ -152,6 +162,45 @@ final class TrackersViewController: UIViewController {
             
             datePicker.widthAnchor.constraint(equalToConstant: 100),
         ])
+    }
+    
+    private func deleteTracker(at indexPath: IndexPath) {
+        let alert = UIAlertController(title: L10n.Delete.confirmation, message: nil, preferredStyle: .actionSheet)
+        alert.view.backgroundColor = .ypBackground
+
+        let okAction = UIAlertAction(title: L10n.delete, style: .default) { _ in
+            self.trackerStore.deleteTracker(at: indexPath)
+            self.analyticsService.report(event: "click", params: ["screen" : "main", "item" : "delete"])
+        }
+        alert.addAction(okAction)
+        
+        let cancelAction = UIAlertAction(title: L10n.cancel, style: .cancel) { _ in }
+        alert.addAction(cancelAction)
+            
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func pinUnpinActionForTracker(at indexPath: IndexPath) {
+        trackerStore.toggleTrackerPin(at: indexPath)
+        changeVisible()
+    }
+    
+    private func titleForActionPin(at indexPath: IndexPath) -> String {
+        if ((trackerStore.object(at: indexPath)?.isPin) != nil) { L10n.pin } else { L10n.unpin }
+    }
+    
+    private func editTracker(at indexPath: IndexPath) {
+        self.analyticsService.report(event: "click", params: ["screen" : "main", "item" : "edit"])
+          
+        let vc = TrackerEditViewController()
+        
+        vc.modalPresentationStyle = .automatic
+        present(vc, animated: true)
+    }
+    
+    private func editTracker(at indexPath: IndexPath, newTracker: Tracker, newCategoryName: String) {
+        trackerStore.edit(at: indexPath, to: newTracker, in: newCategoryName)
+        changeVisible()
     }
 }
 
@@ -207,6 +256,28 @@ extension TrackersViewController: UICollectionViewDataSource {
                        completedDays: completedDays)
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, 
+                        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
+                        point: CGPoint) -> UIContextMenuConfiguration? {
+
+        guard indexPaths.count > 0 else { return nil }
+        let indexPath = indexPaths[0]
+                
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            return UIMenu(children: [
+                UIAction(title: self.titleForActionPin(at: indexPath) ) { _ in
+                    self.pinUnpinActionForTracker(at: indexPath)
+                },
+                UIAction(title: L10n.edit) { _ in
+                    self.editTracker(at: indexPath)
+                },
+                UIAction(title: L10n.delete, attributes: .destructive) { _ in
+                    self.deleteTracker(at: indexPath)
+                }
+            ])
+        })
+    }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
@@ -236,6 +307,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: TrackerCellDelegate {
     func didCompletedTracker(with trackerId: UUID, at indexPath: IndexPath) {
         if currentDate <= Date() {
+            analyticsService.report(event: "click", params: ["screen" : "main", "item" : "track"])
             let trackerRecord = TrackerRecord(id: trackerId, date: currentDate)
             trackerRecordStore.updateRecord(trackerRecord, date: currentDate)
             trackerCollection.reloadItems(at: [indexPath])
@@ -245,13 +317,15 @@ extension TrackersViewController: TrackerCellDelegate {
     }
     
     func didUncompletedTracker(with trackerId: UUID, at indexPath: IndexPath) {
+        analyticsService.report(event: "click", params: ["screen" : "main", "item" : "track"])
         let trackerRecord = TrackerRecord(id: trackerId, date: currentDate)
         trackerRecordStore.updateRecord(trackerRecord, date: currentDate)
         trackerCollection.reloadItems(at: [indexPath])
     }
     
     func didShowErrorForTracker() {
-        SnackbarView.show(frame: view.frame, message: "Нельзя отметить трекер для будущей даты")
+        analyticsService.report(event: "click", params: ["screen" : "main", "item" : "track"])
+        SnackbarView.show(frame: view.frame, message: L10n.TrackerVC.errorAlert)
     }
 }
 

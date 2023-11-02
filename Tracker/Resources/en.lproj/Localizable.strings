@@ -1,0 +1,27 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Виктория Щербакова on 26.10.2023.
+  
+*/
+
+"delete" = "Delete";
+"cancel" = "Cancel";
+"edit" = "Edit";
+"unpin" = "Unpin";
+"pin" = "Pin";
+"search" = "Search";
+
+"TrackerVC.title" = "Trackers";
+"TrackerVC.errorTitle" = "What will we track?";
+"delete.confirmation" = "Are you sure you want to delete the tracker?";
+"TrackerVC.errorAlert" = "You can't mark a tracker for a future date";
+
+"Onboarding.view1" = "Track only what you want";
+"Onboarding.view2" = "Even if it's not liters of water and yoga";
+"Onboarding.button" = "These are technologies!";
+
+"StaticticVC.title" = "Statistic";
+"StaticticVC.errorTitle" = "There is nothing to analyze yet";
+"StaticticVC.titleCell" = "Trackers completed";
